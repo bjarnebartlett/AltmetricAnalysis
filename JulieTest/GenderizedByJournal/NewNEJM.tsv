@@ -1,0 +1,4 @@
+id	altmetric_id	authors	journal	type	altmetric_score	date	males	females	unknown	percmales	percfemales	percunknown
+19	980029	['Kenneth S. Polonsky', 'Polonsky, Kenneth S.']	New England Journal of Medicine	article	311.2	2012-10-04T00:00:00+00:00	1	0	2	0.333333333333333	0	0.666666666666667
+1020	14045886	['Rubenstein, L Z', 'Josephson, K R', 'Wieland, G D', 'English, P A', 'Sayre, J A', 'Kane, R L', 'Rubenstein, Laurence Z.', 'Josephson, Karen R.', 'Wieland, G. Darryl', 'English, Patricia A.', 'Sayre, James A.', 'Kane, Robert L.', 'Laurence Z. Rubenstein', 'Karen R. Josephson', 'G. Darryl Wieland', 'Patricia A. English', 'James A. Sayre', 'Robert L. Kane']	New England Journal of Medicine	article	6.2	1984-12-27T00:00:00+00:00	3	2	25	0.1	0.0666666666666667	0.833333333333333
+3804	4443323	['Haeberle, Helene', 'Körner, Andreas', 'Rosenberger, Peter']	New England Journal of Medicine	article	0.25	2015-08-27T22:00:29+00:00	2	1	3	0.333333333333333	0.166666666666667	0.5

@@ -1,0 +1,4 @@
+id	altmetric_id	authors	journal	type	altmetric_score	date	males	females	unknown	percmales	percfemales	percunknown
+387	3061952	['Yu-yu Ren', 'Lauren G Koch', 'Steven L Britton', 'Nathan R Qi', 'Mary K Treutelaar', 'Charles F Burant', 'Jun Z Li']	bioRxiv	article	1.5	2015-01-13T00:00:00+00:00	4	2	1	0.571428571428571	0.285714285714286	0.142857142857143
+2021	3096387	['Maria Botcharova', 'Luc Berthouze', 'Matthew J Brookes', 'Gareth R Barnes', 'Simon F Farmer']	bioRxiv	article	1.75	2015-01-22T00:00:00+00:00	4	1	0	0.8	0.2	0
+2459	3740314	['Michal Komorowski', 'Jorg Schumacher', 'Volker Behrends', 'Tomasz Jetka', 'Mark H Bennett', 'Angelique Ale', 'Sarah Filippi', 'John W Pinney', 'Jake G Bundy', 'Martin Buck', 'Michael PH Stumpf']	bioRxiv	article	3.25	None	6	2	3	0.545454545454545	0.181818181818182	0.272727272727273

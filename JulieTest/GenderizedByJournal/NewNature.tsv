@@ -1,0 +1,4 @@
+id	altmetric_id	authors	journal	type	altmetric_score	date	males	females	unknown	percmales	percfemales	percunknown
+319	3199274	['Keith P. Wilson', 'Jo-Anne F. Black', 'John A. Thomson', 'Eunice E. Kim', 'James P. Griffith', 'Manuel A. Navia', 'Mark A. Murcko', 'Stephen P. Chambers', 'Robert A. Aldape', 'Scott A. Raybuck', 'David J. Livingston', 'Wilson, K P', 'Black, J A', 'Thomson, J A', 'Kim, E E', 'Griffith, J P', 'Navia, M A', 'Murcko, M A', 'Chambers, S P', 'Aldape, R A', 'Raybuck, S A']	Nature	article	6	1994-07-28T00:00:00+00:00	10	4	17	0.32258064516129	0.129032258064516	0.548387096774194
+661	42348578	['Stuart Young']	Nature	article	3	2001-11-01T00:00:00+00:00	1	0	0	1	0	0
+860	2100172	['Alison Abbott']	Nature	news	102.866	2014-02-06T00:00:00+00:00	0	1	0	0	1	0

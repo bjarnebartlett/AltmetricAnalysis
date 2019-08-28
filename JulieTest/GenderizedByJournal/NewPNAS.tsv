@@ -1,0 +1,4 @@
+id	altmetric_id	authors	journal	type	altmetric_score	date	males	females	unknown	percmales	percfemales	percunknown
+249	41289191	['Kay Keyer', 'James\u2009A. Imlay']	Proceedings of the National Academy of Sciences of the United States of America	article	6	1996-11-26T00:00:00+00:00	0	1	1	0	0.5	0.5
+256	3249868	['Qing Lu', 'Fei Ye', 'Zhiyi Wei', 'Zilong Wen', 'Mingjie Zhang']	Proceedings of the National Academy of Sciences of the United States of America	article	3	None	0	1	4	0	0.2	0.8
+475	8213600	['Chang GS', 'Hong Y', 'Ko KD', 'Bhardwaj G', 'Holmes EC', 'Patterson RL', 'van Rossum DB']	Proceedings of the National Academy of Sciences of the United States of America	article	0	2008-09-08T23:00:00+00:00	0	0	7	0	0	1
