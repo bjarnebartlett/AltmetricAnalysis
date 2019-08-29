@@ -1,0 +1,61 @@
+id	altmetric_id	authors	journal	type	altmetric_score	date	males	females	unknown	percmales	percfemales	percunknown
+319	3199274	['Keith P. Wilson', 'Jo-Anne F. Black', 'John A. Thomson', 'Eunice E. Kim', 'James P. Griffith', 'Manuel A. Navia', 'Mark A. Murcko', 'Stephen P. Chambers', 'Robert A. Aldape', 'Scott A. Raybuck', 'David J. Livingston', 'Wilson, K P', 'Black, J A', 'Thomson, J A', 'Kim, E E', 'Griffith, J P', 'Navia, M A', 'Murcko, M A', 'Chambers, S P', 'Aldape, R A', 'Raybuck, S A']	Nature	article	6	1994-07-28T00:00:00+00:00	10	4	17	0.32258064516129	0.129032258064516	0.548387096774194
+661	42348578	['Stuart Young']	Nature	article	3	2001-11-01T00:00:00+00:00	1	0	0	1	0	0
+860	2100172	['Alison Abbott']	Nature	news	102.866	2014-02-06T00:00:00+00:00	0	1	0	0	1	0
+979	10799833	['Jennifer McGowan', 'Hugh P. Possingham', 'Ken Anthony']	Nature	article	18.35	2016-08-24T00:00:00+00:00	3	1	-1	1	0.333333333333333	-0.333333333333333
+1019	3606892	['Frederick S. Gimble', 'Jeremy Thorner']	Nature	article	6	1992-05-28T00:00:00+00:00	2	0	0	1	0	0
+1357	535432	['Sandberg MK', 'Al-Doujaily H', 'Sharps B', 'Clarke AR', 'Collinge J', 'Malin K. Sandberg', 'Huda Al-Doujaily', 'Bernadette Sharps', 'Anthony R. Clarke', 'John Collinge']	Nature	article	6	2011-02-27T00:00:00+00:00	3	2	5	0.3	0.2	0.5
+2043	30435817	['Conway B. Leovy', 'A. James Friedson', 'Glenn S. Orton']	Nature	article	5.08	1991-12-05T00:00:00+00:00	2	0	1	0.666666666666667	0	0.333333333333333
+2103	32074556	['B. E. Tetarenko', 'J.-P. Lasota', 'C. O. Heinke', 'G. Dubus', 'G. R. Sivakoff', 'J. -P. Lasota']	Nature	article	115.712	2018-01-22T00:00:00+00:00	0	0	6	0	0	1
+2218	31756993	['F. A. FREETH']	Nature	news	3	1926-03-01T00:00:00+00:00	0	0	1	0	0	1
+3834	4970740	['Zach Zorich']	Nature	news	176.778	2016-01-08T00:00:00+00:00	1	0	0	1	0	0
+4859	141208	['Diane M Roberts', 'Anjali Nanda', 'Menzo J E Havenga', 'Peter Abbink', 'Diana M Lynch', 'Bonnie A Ewald', 'Jinyan Liu', 'Anna R Thorner', 'Patricia E Swanson', 'Darci A Gorgone', 'Michelle A Lifton', 'Angelique A C Lemckert', 'Lennart Holterman', 'Bing Chen', 'Athmanundh Dilraj', 'Angela Carville', 'Keith G Mansfield', 'Jaap Goudsmit', 'Dan H Barouch', 'Diane M. Roberts', 'Menzo J. E. Havenga', 'Diana M. Lynch', 'Bonnie A. Ewald', 'Anna R. Thorner', 'Patricia E. Swanson', 'Darci A. Gorgone', 'Michelle A. Lifton', 'Angelique A. C. Lemckert', 'Keith G. Mansfield', 'Dan H. Barouch']	Nature	article	15.048	2006-05-11T00:00:00+00:00	3	8	19	0.1	0.266666666666667	0.633333333333333
+4886	228202	['Andrea H. Bild', 'Guang Yao', 'Jeffrey T. Chang', 'Quanli Wang', 'Anil Potti', 'Dawn Chasse', 'Mary-Beth Joshi', 'David Harpole', 'Johnathan M. Lancaster', 'Andrew Berchuck', 'John A. Olson', 'Jeffrey R. Marks', 'Holly K. Dressman', 'Mike West', 'Joseph R. Nevins', 'Bild AH', 'Yao G', 'Chang JT', 'Wang Q', 'Potti A', 'Chasse D', 'Joshi MB', 'Harpole D', 'Lancaster JM', 'Berchuck A', 'Olson JA Jr', 'Marks JR', 'Dressman HK', 'West M', 'Nevins JR', 'John A. Olson Jr']	Nature	article	18	2006-01-19T00:00:00+00:00	10	5	16	0.32258064516129	0.161290322580645	0.516129032258065
+5434	41740337	['J. C. ALLEN', 'C. J. SMITH', 'M. C. CURRY', 'J. M. GAUGAS']	Nature	article	3	1977-06-16T00:00:00+00:00	1	0	3	0.25	0	0.75
+5733	1982226	['Dan Erlanson']	Nature	article	1	2011-03-30T00:00:00+00:00	1	0	0	1	0	0
+5763	2284512	['Preston Grassmann']	Nature	article	0.5	2014-04-16T00:00:00+00:00	1	0	0	1	0	0
+6299	3617473	None	Nature	article	0	1948-01-03T00:00:00+00:00	0	0	1	0	0	1
+6673	450263	['Jonathan Knight']	Nature	news	3	2003-05-22T00:00:00+00:00	1	0	0	1	0	0
+7430	2898125	None	Nature	article	1.35	2008-07-23T00:00:00+00:00	0	0	1	0	0	1
+7860	12951548	None	Nature	article	11.8	2016-10-19T00:00:00+00:00	0	0	1	0	0	1
+8522	4545206	['Hong Yang', 'Julian R. Thompson', 'Roger J. Flower']	Nature	article	2.5	2015-09-23T00:00:00+00:00	2	0	1	0.666666666666667	0	0.333333333333333
+8794	17924919	['Pumin Zhang', 'Nanette J. Liégeois', 'Calvin Wong', 'Milton Finegold', 'Harry Hou', 'Janet C. Thompson', 'Adam Silverman', 'J. Wade Harper', 'Ronald A. DePinho', 'Stephen J. Elledge']	Nature	article	3	1997-05-08T00:00:00+00:00	7	1	2	0.7	0.1	0.2
+9111	1223238	['Matthew R. Warr', 'Mikhail Binnewies', 'Johanna Flach', 'Damien Reynaud', 'Trit Garg', 'Ritu Malhotra', 'Jayanta Debnath', 'Emmanuelle PasseguÃ©', 'Warr MR', 'Binnewies M', 'Flach J', 'Reynaud D', 'Garg T', 'Malhotra R', 'Debnath J', 'Passegué E', 'Emmanuelle Passegué']	Nature	article	12.05	2013-02-06T00:00:00+00:00	2	2	13	0.117647058823529	0.117647058823529	0.764705882352941
+9117	493051	None	Nature	article	90.736	2011-12-14T00:00:00+00:00	0	0	1	0	0	1
+9527	43133635	['T. Ditmire', 'J. W. G. Tisch', 'E. Springate', 'M. B. Mason', 'N. Hay', 'R. A. Smith', 'J. Marangos', 'M. H. R. Hutchinson']	Nature	article	3	1997-03-06T00:00:00+00:00	1	0	7	0.125	0	0.875
+9926	22443286	['T. A. ANGUS']	Nature	article	3	1954-03-20T00:00:00+00:00	1	0	0	1	0	0
+10123	3657102	['John Whitfield']	Nature	news	3	2002-07-17T00:00:00+00:00	1	0	0	1	0	0
+10216	2224186	['Norihiro Nakamura', 'Jennie R. Lill', 'Qui Phung', 'Zhaoshi Jiang', 'Corey Bakalarski', 'Ann de Mazière', 'Judith Klumperman', 'Megan Schlatter', 'Lélia Delamarre', 'Ira Mellman']	Nature	article	10.75	2014-03-30T00:00:00+00:00	1	5	4	0.1	0.5	0.4
+11410	1972906	None	Nature	article	7.7	2013-12-11T00:00:00+00:00	0	0	1	0	0	1
+11786	2042908	['Eugenie Samuel Reich']	Nature	news	199.55	2014-01-16T00:00:00+00:00	1	0	0	1	0	0
+11922	41351874	['Tim Wilson', 'Richard Treisman']	Nature	article	3	1988-11-24T00:00:00+00:00	3	0	-1	1.5	0	-0.5
+12407	234944	['Christian Brix Folsted Andersen', 'Mette Madsen', 'Tina Storm', 'Søren K. Moestrup', 'Gregers R. Andersen']	Nature	article	4	2010-03-18T00:00:00+00:00	2	2	1	0.4	0.4	0.2
+12820	1409636	None	Nature	article	29.278	2013-04-24T00:00:00+00:00	0	0	1	0	0	1
+12922	3620500	['THOMAS E. ENGLAND', 'OLKE C. UHLENBECK', 'England, T E', 'Uhlenbeck, O C']	Nature	article	6	1978-10-12T00:00:00+00:00	1	0	5	0.166666666666667	0	0.833333333333333
+13213	5795187	['Andreotti B', 'Fourrière A', 'Ould-Kaddour F', 'Murray B', 'Claudin P', 'Bruno Andreotti', 'Antoine Fourrière', 'Fouzia Ould-Kaddour', 'Brad Murray', 'Philippe Claudin']	Nature	article	0	2009-02-26T00:00:00+00:00	4	0	6	0.4	0	0.6
+13304	21230438	['Kamaljit S. Bawa', 'R. Ganesan']	Nature	article	9.2	2017-06-21T00:00:00+00:00	0	0	2	0	0	1
+13714	2329668	['Alexandra Witze']	Nature	news	62.25	2014-05-06T00:00:00+00:00	0	1	0	0	1	0
+14071	42131761	['Ilanit Doron-Mor', 'Anat Hatzor', 'Alexander Vaskevich', 'Tamar van der Boom-Moav', 'Abraham Shanzer', 'Israel Rubinstein', 'Hagai Cohen']	Nature	article	3	2000-07-27T00:00:00+00:00	3	0	4	0.428571428571429	0	0.571428571428571
+14089	22489856	['Penit, C', 'Paraf, A', 'Chapeville, F']	Nature	article	0	1975-07-24T00:00:00+00:00	0	0	6	0	0	1
+14119	4090564	None	Nature	article	3	1968-04-13T00:00:00+00:00	0	0	1	0	0	1
+14405	11998496	['Quirin Schiermeier']	Nature	news	457.096	2016-09-14T00:00:00+00:00	0	0	1	0	0	1
+14560	5475161	['N. C. Greenham', 'S. C. Moratti', 'D. D. C. Bradley', 'R. H. Friend', 'A. B. Holmes']	Nature	article	6	1993-10-14T00:00:00+00:00	1	0	4	0.2	0	0.8
+14809	15232371	['Christopher J. Evans', 'Evans, Christopher J']	Nature	article	28.35	2017-01-04T00:00:00+00:00	1	0	2	0.333333333333333	0	0.666666666666667
+15045	519375	['Sousa-Nunes R', 'Yee LL', 'Gould AP', 'Rita Sousa-Nunes', 'Lih Ling Yee', 'Alex P. Gould']	Nature	article	1	1970-01-01T01:00:00+00:00	1	2	3	0.166666666666667	0.333333333333333	0.5
+15303	496444	['Meredith Wadman']	Nature	news	71.43	2011-12-16T00:00:00+00:00	0	1	0	0	1	0
+15604	3082280	['Richard Van Noorden']	Nature	news	513.672	2015-01-20T00:00:00+00:00	1	0	0	1	0	0
+15942	244703	None	Nature	article	1	2011-08-24T00:00:00+00:00	0	0	1	0	0	1
+16905	1036360	['Deirdre Lockwood']	Nature	news	1	2005-03-24T00:00:00+00:00	0	1	0	0	1	0
+17278	41499418	['Ryo Yoshida', 'Katsumi Uchida', 'Yuzo Kaneko', 'Kiyotaka Sakai', 'Akihiko Kikuchi', 'Yasuhisa Sakurai', 'Teruo Okano']	Nature	article	3	1995-03-16T00:00:00+00:00	0	0	7	0	0	1
+17707	14569512	['GEORGE G. WRIGHT', 'MILTON PUZISS']	Nature	article	3	1957-05-04T00:00:00+00:00	2	0	0	1	0	0
+18368	14334951	['Mark D. Zoback', 'William H. Prescott', 'Scot W. Krueger']	Nature	article	0	1985-10-24T00:00:00+00:00	2	0	1	0.666666666666667	0	0.333333333333333
+18586	107813	['L G Cohen', 'P Celnik', 'A Pascual-Leone', 'B Corwell', 'L Falz', 'J Dambrosia', 'M Honda', 'N Sadato', 'C Gerloff', 'M D Catalá', 'M Hallett', 'Leonardo G. Cohen', 'Pablo Celnik', 'Alvaro Pascual-Leone', 'Brian Corwell', 'Lala Faiz', 'James Dambrosia', 'Manabu Honda', 'Norihiro Sadato', 'Christian Gerloff', 'M. Dolores Catala´', 'Mark Hallett']	Nature	article	17.5	1997-09-11T00:00:00+00:00	7	2	13	0.318181818181818	0.0909090909090909	0.590909090909091
+20071	15794862	None	Nature	news	63.05	2017-01-26T00:00:00+00:00	0	0	1	0	0	1
+20354	119155	['John Abrahamson', 'James Dinniss']	Nature	article	61.656	2000-02-03T00:00:00+00:00	2	0	0	1	0	0
+20784	41588523	['Rudolf Amann', 'Nina Springer', 'Wolfgang Ludwig', 'Hans-Dieter Görtz', 'Karl-Heinz Schleifer']	Nature	article	6	1991-05-09T00:00:00+00:00	2	1	2	0.4	0.2	0.4
+20961	499803	['James F. Crow']	Nature	article	15	2001-02-15T00:00:00+00:00	1	0	0	1	0	0
+22425	110598	['Daniel Cressey']	Nature	news	37.316	2009-11-16T00:00:00+00:00	1	0	0	1	0	0
+22798	1290750	['Bruce B. Collette', 'Beth Polidoro', 'Kent Carpenter', 'Collette BB', 'Polidoro B', 'Carpenter K']	Nature	article	0.25	2013-03-06T00:00:00+00:00	2	1	3	0.333333333333333	0.166666666666667	0.5
+23263	14508300	['J. M. MERRICK', 'M. DOUDOROFF']	Nature	article	3	1961-03-18T00:00:00+00:00	0	0	2	0	0	1
+23519	3931981	['Jan Zalasiewicz', 'Zalasiewicz, Jan']	Nature	article	24.842	2015-04-22T00:00:00+00:00	0	0	3	0	0	1
+23829	34673246	None	Nature	news	27.55	2018-03-22T00:00:00+00:00	0	0	1	0	0	1

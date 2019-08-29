@@ -14,6 +14,8 @@
 # And looking at the gender of the authors of those publications
 # To see if there are any interesting patterns in terms of altmetrics & gender bias
 
+# Citation
+# Kamil Wais, Gender Prediction Methods Based on First Names with genderizeR, The R Journal,Vol. 8/1, Aug. 2016, https://journal.r-project.org/archive/2016-1/wais.pdf
 
 ##############
 ### SET UP ###
@@ -54,7 +56,7 @@ afn.getauthors <- function(article) {
   authors <- article$authors
   authors <- gsub("\\\\xa0"," ",authors)
   
-  authorsvec <- strsplit(authors,",")[[1]]
+  authorsvec <- strsplit(authors,"\',")[[1]]
   numauthors <- length(authorsvec)
   
   authors <- textPrepare(authors)
@@ -99,19 +101,36 @@ afn.assessonejournal <- function(journal_data, outfile) {
   newjournaldata <- c()
   
   for (i in 1:#dim(journal_data)[[1]]) { # go through all articles
-       3) {
+       20) {
+    # pull data for just one article
     journal_article <- journal_data[i,]
+    
+    # extract authors
     article_authors <- afn.getauthors(journal_article)
-    article_authors_text <- article_authors[[1]]
-    article_authors_order <- article_authors[[2]]
-    article_authors_num <- article_authors[[3]]
-    article_authors_names <- afn.findnames(article_authors_text)
-    article_stats <- afn.getgenderstats(article_authors_names, article_authors_num)
+    authors_text <- article_authors[[1]] # all authors
+    authors_order <- article_authors[[2]] # ordered vector of all authors
+    authors_num <- article_authors[[3]] # number of authors
+    
+    # looking at all authors of the article
+    allauthors_names <- afn.findnames(authors_text) # I should make this go through each name in vector...
+    article_stats <- afn.getgenderstats(allauthors_names, authors_num)
+    
+    # now just first and last author
+    firstauthor <- authors_order[1]
+    lastauthor <- authors_order[length(authors_order)]
+    firstnames <- afn.findnames(firstauthor)
+    firstgender <- firstnames$gender[1] # !!! How do I pick if there's more than one?
+    lastnames <- afn.findnames(lastauthor)
+    lastgender <- lastnames$gender[1]
+    firstlast_stats <- data.frame(firstgender, lastgender)
+    article_stats <- cbind(article_stats,firstlast_stats)
+    
+    # now put everything together
     journal_article <- cbind(journal_article, article_stats)
     newjournaldata <- rbind(newjournaldata, journal_article)
   }
   
-  fwrite(newjournaldata, outfile, sep="\t")
+  fwrite(newjournaldata, outfile, sep="\t", append=TRUE)
   
   return(newjournaldata)
   
