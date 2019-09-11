@@ -1,21 +1,5 @@
-id	altmetric_id	authors	journal	type	altmetric_score	date	males	females	unknown	percmales	percfemales	percunknown	firstgender	lastgender
-319	3199274	['Keith P. Wilson', 'Jo-Anne F. Black', 'John A. Thomson', 'Eunice E. Kim', 'James P. Griffith', 'Manuel A. Navia', 'Mark A. Murcko', 'Stephen P. Chambers', 'Robert A. Aldape', 'Scott A. Raybuck', 'David J. Livingston', 'Wilson, K P', 'Black, J A', 'Thomson, J A', 'Kim, E E', 'Griffith, J P', 'Navia, M A', 'Murcko, M A', 'Chambers, S P', 'Aldape, R A', 'Raybuck, S A']	Nature	article	6	1994-07-28T00:00:00+00:00	10	4	7	0.476190476190476	0.19047619047619	0.333333333333333	male	
-661	42348578	['Stuart Young']	Nature	article	3	2001-11-01T00:00:00+00:00	1	0	0	1	0	0	male	male
-860	2100172	['Alison Abbott']	Nature	news	102.866	2014-02-06T00:00:00+00:00	0	1	0	0	1	0	female	female
-979	10799833	['Jennifer McGowan', 'Hugh P. Possingham', 'Ken Anthony']	Nature	article	18.35	2016-08-24T00:00:00+00:00	3	1	-1	1	0.333333333333333	-0.333333333333333	female	male
-1019	3606892	['Frederick S. Gimble', 'Jeremy Thorner']	Nature	article	6	1992-05-28T00:00:00+00:00	2	0	0	1	0	0	male	male
-1357	535432	['Sandberg MK', 'Al-Doujaily H', 'Sharps B', 'Clarke AR', 'Collinge J', 'Malin K. Sandberg', 'Huda Al-Doujaily', 'Bernadette Sharps', 'Anthony R. Clarke', 'John Collinge']	Nature	article	6	2011-02-27T00:00:00+00:00	3	2	5	0.3	0.2	0.5		male
-2043	30435817	['Conway B. Leovy', 'A. James Friedson', 'Glenn S. Orton']	Nature	article	5.08	1991-12-05T00:00:00+00:00	2	0	1	0.666666666666667	0	0.333333333333333		male
-2103	32074556	['B. E. Tetarenko', 'J.-P. Lasota', 'C. O. Heinke', 'G. Dubus', 'G. R. Sivakoff', 'J. -P. Lasota']	Nature	article	115.712	2018-01-22T00:00:00+00:00	0	0	6	0	0	1		
-2218	31756993	['F. A. FREETH']	Nature	news	3	1926-03-01T00:00:00+00:00	0	0	1	0	0	1		
-3834	4970740	['Zach Zorich']	Nature	news	176.778	2016-01-08T00:00:00+00:00	1	0	0	1	0	0	male	male
-4859	141208	['Diane M Roberts', 'Anjali Nanda', 'Menzo J E Havenga', 'Peter Abbink', 'Diana M Lynch', 'Bonnie A Ewald', 'Jinyan Liu', 'Anna R Thorner', 'Patricia E Swanson', 'Darci A Gorgone', 'Michelle A Lifton', 'Angelique A C Lemckert', 'Lennart Holterman', 'Bing Chen', 'Athmanundh Dilraj', 'Angela Carville', 'Keith G Mansfield', 'Jaap Goudsmit', 'Dan H Barouch', 'Diane M. Roberts', 'Menzo J. E. Havenga', 'Diana M. Lynch', 'Bonnie A. Ewald', 'Anna R. Thorner', 'Patricia E. Swanson', 'Darci A. Gorgone', 'Michelle A. Lifton', 'Angelique A. C. Lemckert', 'Keith G. Mansfield', 'Dan H. Barouch']	Nature	article	15.048	2006-05-11T00:00:00+00:00	3	8	19	0.1	0.266666666666667	0.633333333333333	female	male
-4886	228202	['Andrea H. Bild', 'Guang Yao', 'Jeffrey T. Chang', 'Quanli Wang', 'Anil Potti', 'Dawn Chasse', 'Mary-Beth Joshi', 'David Harpole', 'Johnathan M. Lancaster', 'Andrew Berchuck', 'John A. Olson', 'Jeffrey R. Marks', 'Holly K. Dressman', 'Mike West', 'Joseph R. Nevins', 'Bild AH', 'Yao G', 'Chang JT', 'Wang Q', 'Potti A', 'Chasse D', 'Joshi MB', 'Harpole D', 'Lancaster JM', 'Berchuck A', 'Olson JA Jr', 'Marks JR', 'Dressman HK', 'West M', 'Nevins JR', 'John A. Olson Jr']	Nature	article	18	2006-01-19T00:00:00+00:00	10	5	16	0.32258064516129	0.161290322580645	0.516129032258065	female	male
-5434	41740337	['J. C. ALLEN', 'C. J. SMITH', 'M. C. CURRY', 'J. M. GAUGAS']	Nature	article	3	1977-06-16T00:00:00+00:00	1	0	3	0.25	0	0.75	male	
-5733	1982226	['Dan Erlanson']	Nature	article	1	2011-03-30T00:00:00+00:00	1	0	0	1	0	0	male	male
-5763	2284512	['Preston Grassmann']	Nature	article	0.5	2014-04-16T00:00:00+00:00	1	0	0	1	0	0	male	male
-6299	3617473	None	Nature	article	0	1948-01-03T00:00:00+00:00	0	0	1	0	0	1		
-6673	450263	['Jonathan Knight']	Nature	news	3	2003-05-22T00:00:00+00:00	1	0	0	1	0	0	male	male
-7430	2898125	None	Nature	article	1.35	2008-07-23T00:00:00+00:00	0	0	1	0	0	1		
-7860	12951548	None	Nature	article	11.8	2016-10-19T00:00:00+00:00	0	0	1	0	0	1		
-8522	4545206	['Hong Yang', 'Julian R. Thompson', 'Roger J. Flower']	Nature	article	2.5	2015-09-23T00:00:00+00:00	2	0	1	0.666666666666667	0	0.333333333333333		male
+id	altmetric_id	authors	journal	type	doi	altmetric_score	date	pubyear	pubmonth	males	females	unknown	percmales	percfemales	percunknown	numauthors	firstgender	firstgenderprob	lastgender	lastgenderprob
+860	2100172	['Alison Abbott']	Nature	news	10.1038/506024a	102.866	2014-02-06T00:00:00+00:00	2014	2	0	1	0	0	1	0	1	female	0.98	female	0.98
+979	10799833	['Jennifer McGowan', 'Hugh P. Possingham', 'Ken Anthony']	Nature	article	10.1038/536396a	18.35	2016-08-24T00:00:00+00:00	2016	8	2	1	0	0.666666666666667	0.333333333333333	0	3	female	0.98	male	0.98
+1357	535432	['Sandberg MK', 'Al-Doujaily H', 'Sharps B', 'Clarke AR', 'Collinge J', 'Malin K. Sandberg', 'Huda Al-Doujaily', 'Bernadette Sharps', 'Anthony R. Clarke', 'John Collinge']	Nature	article	10.1038/nature09768	6	2011-02-27T00:00:00+00:00	2011	2	0	0	10	0	0	1	10				
+2103	32074556	['B. E. Tetarenko', 'J.-P. Lasota', 'C. O. Heinke', 'G. Dubus', 'G. R. Sivakoff', 'J. -P. Lasota']	Nature	article	10.1038/nature25159	115.712	2018-01-22T00:00:00+00:00	2018	1	0	0	6	0	0	1	6				

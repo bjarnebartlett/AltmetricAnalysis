@@ -1,21 +1,5 @@
-id	altmetric_id	authors	journal	type	altmetric_score	date	males	females	unknown	percmales	percfemales	percunknown	firstgender	lastgender
-19	980029	['Kenneth S. Polonsky', 'Polonsky, Kenneth S.']	New England Journal of Medicine	article	311.2	2012-10-04T00:00:00+00:00	1	0	2	0.333333333333333	0	0.666666666666667	male	male
-1020	14045886	['Rubenstein, L Z', 'Josephson, K R', 'Wieland, G D', 'English, P A', 'Sayre, J A', 'Kane, R L', 'Rubenstein, Laurence Z.', 'Josephson, Karen R.', 'Wieland, G. Darryl', 'English, Patricia A.', 'Sayre, James A.', 'Kane, Robert L.', 'Laurence Z. Rubenstein', 'Karen R. Josephson', 'G. Darryl Wieland', 'Patricia A. English', 'James A. Sayre', 'Robert L. Kane']	New England Journal of Medicine	article	6.2	1984-12-27T00:00:00+00:00	3	2	25	0.1	0.0666666666666667	0.833333333333333		male
-3804	4443323	['Haeberle, Helene', 'Körner, Andreas', 'Rosenberger, Peter']	New England Journal of Medicine	article	0.25	2015-08-27T22:00:29+00:00	2	1	3	0.333333333333333	0.166666666666667	0.5		male
-4094	269982	['Gail R. Wilensky', 'Wilensky GR', 'Wilensky, Gail R.']	New England Journal of Medicine	article	54.598	2011-09-14T00:00:00+00:00	0	1	3	0	0.25	0.75	female	female
-5386	23377720	['Saillard, Colombe', 'Darmon, Michael', 'Mokart, Djamel']	New England Journal of Medicine	article	9.75	2017-08-03T00:00:00+00:00	1	0	5	0.166666666666667	0	0.833333333333333		
-5997	1151291	['Roberts, Richard J']	New England Journal of Medicine	article	5.032	2002-05-23T00:00:00+00:00	1	0	1	0.5	0	0.5		male
-6389	3976955	['Stock, Stephanie']	New England Journal of Medicine	article	9.5	2015-05-08T22:04:16+00:00	0	1	1	0	0.5	0.5		female
-9672	22482511	['G. Stamatoyannopoulos', 'R. Woodson', 'Th. Papayannopoulou', 'D. Heywood', 'S. Kurachi']	New England Journal of Medicine	article	0	1974-04-25T00:00:00+00:00	0	0	5	0	0	1		
-10330	232649	['D. Mark Davies', 'Simon R. Johnson', 'Anne E. Tattersfield', 'J. Chris Kingswood', 'Jane A. Cox', 'Deborah L. McCartney', 'Tim Doyle', 'Frances Elmslie', 'Anand Saggar', 'Petrus J. de Vries', 'Julian R. Sampson']	New England Journal of Medicine	article	1	2008-01-10T00:00:00+00:00	6	4	1	0.545454545454545	0.363636363636364	0.0909090909090909	male	male
-11399	3298169	['Siroos Mirzaei', 'Peter Knoll', 'Horst Kohn']	New England Journal of Medicine	article	3	2001-06-28T00:00:00+00:00	1	0	2	0.333333333333333	0	0.666666666666667		
-13023	2219126	None	New England Journal of Medicine	article	0.5	1983-10-06T00:00:00+00:00	0	0	1	0	0	1		
-14903	1054696	['Kevin Outterson']	New England Journal of Medicine	article	88.492	2012-11-07T00:00:00+00:00	1	0	0	1	0	0	male	male
-14916	660120	['Cutler DM', 'Ghosh K', 'Cutler, David M.', 'Ghosh, Kaushik', 'David M. Cutler', 'Kaushik Ghosh']	New England Journal of Medicine	article	82.248	2012-01-01T00:00:00+00:00	1	0	7	0.125	0	0.875		
-14951	15200230	['Martin, Don R.']	New England Journal of Medicine	article	1	2007-11-01T00:00:00+00:00	2	0	0	1	0	0	male	male
-15134	2486726	['Joseph E. Hardison']	New England Journal of Medicine	article	7	1979-01-25T00:00:00+00:00	1	0	0	1	0	0	male	male
-15292	3478390	['Fred S. Rosen']	New England Journal of Medicine	article	3	2004-10-07T00:00:00+00:00	1	0	0	1	0	0	male	male
-16264	1466310	['Okie S']	New England Journal of Medicine	article	2	2005-12-16T00:00:00+00:00	0	0	1	0	0	1		
-17163	15039707	['Haussler, Mark R.']	New England Journal of Medicine	article	3	1977-11-10T00:00:00+00:00	1	0	1	0.5	0	0.5		male
-17306	32866138	['William D. Mattern', 'Donn Weinholtz', 'Charles P. Friedman']	New England Journal of Medicine	article	0	1983-05-12T00:00:00+00:00	2	0	1	0.666666666666667	0	0.333333333333333	male	male
-17362	22640052	['Nancy E. Davidson']	New England Journal of Medicine	article	0	1992-03-26T00:00:00+00:00	0	1	0	0	1	0	female	female
+id	altmetric_id	authors	journal	type	doi	altmetric_score	date	pubyear	pubmonth	males	females	unknown	percmales	percfemales	percunknown	numauthors	firstgender	firstgenderprob	lastgender	lastgenderprob
+19	980029	['Kenneth S. Polonsky', 'Polonsky, Kenneth S.']	New England Journal of Medicine	article	10.1056/nejmra1110560	311.2	2012-10-04T00:00:00+00:00	2012	10	1	0	1	0.5	0	0.5	2	male	0.98		
+3804	4443323	['Haeberle, Helene', 'Körner, Andreas', 'Rosenberger, Peter']	New England Journal of Medicine	article	10.1056/nejmc1506819#sa4	0.25	2015-08-27T22:00:29+00:00	2015	8	1	1	1	0.333333333333333	0.333333333333333	0.333333333333333	3	female	0.98	male	0.99
+4094	269982	['Gail R. Wilensky', 'Wilensky GR', 'Wilensky, Gail R.']	New England Journal of Medicine	article	10.1056/nejmp1110185	54.598	2011-09-14T00:00:00+00:00	2011	9	1	1	1	0.333333333333333	0.333333333333333	0.333333333333333	3	female	0.94	male	1
+5386	23377720	['Saillard, Colombe', 'Darmon, Michael', 'Mokart, Djamel']	New England Journal of Medicine	article	10.1056/nejmc1707248	9.75	2017-08-03T00:00:00+00:00	2017	8	2	1	0	0.666666666666667	0.333333333333333	0	3	female	0.95	male	1
