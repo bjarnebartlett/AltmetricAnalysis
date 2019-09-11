@@ -95,7 +95,7 @@ afn.assessonejournal <- function(journal_data, outfile) {
   newjournaldata <- c()
   
   for (i in 1:#dim(journal_data)[[1]]) { # go through all articles
-       4) { # for testing purposes to keep within 1000 api limit
+       3) { # for testing purposes to keep within 1000 api limit
     # pull data for just one article
     
     # print(paste("On article",i,"of journal",journal_data$journal[i]))
@@ -155,9 +155,9 @@ afn.getauthors <- function(article) {
         # there is only one term, most likely it is a last name 
         # don't bother genderizing
         if (format == "firstlast") {
-          genderizedname <- unique(findGivenNames(names[[1]][1]))
+          genderizedname <- unique(findGivenNames(names[[1]][1],apikey="d92354e95b4ff49e7944cd9395e4f908"))
         } else if (format == "lastfirst") {
-          genderizedname <- unique(findGivenNames(names[[1]][2]))
+          genderizedname <- unique(findGivenNames(names[[1]][2],apikey="d92354e95b4ff49e7944cd9395e4f908"))
         } else {
           genderizedname <- data.frame(name=names[[1]][1], gender=NA, probability=NA, count=NA, country_id=NA)
         }
@@ -274,7 +274,7 @@ afn.testfirstfew <- function(authors, i, confthresh) {
     term1 <- names[[1]][1]
     term2 <- names[[1]][2]
     
-    genderedterm1 <- unique(findGivenNames(term1))
+    genderedterm1 <- unique(findGivenNames(term1,apikey="d92354e95b4ff49e7944cd9395e4f908"))
     
     if (dim(genderedterm1)[[1]]==0) { # if there are no rows
       
@@ -292,16 +292,16 @@ afn.testfirstfew <- function(authors, i, confthresh) {
         
       } else { # if uncertain that term1 is firstname, check term2
         
-        genderedterm2 <- unique(findGivenNames(term2))
+        genderedterm2 <- unique(findGivenNames(term2,apikey="d92354e95b4ff49e7944cd9395e4f908"))
         prob2 <- as.numeric(genderedterm2$probability)
         
         if (dim(genderedterm2)[[1]]==0) { # if there are no rows
           format <- "unknown"
           genderedauthor <- data.frame(name=NA,gender=NA,probability=NA,count=NA,country_id=NA)
-        } else if (prob2 > prob1 & prob2 > probabilitythreshold) { # need to be confident enough in gender
+        } else if ((prob2 > prob1) && (prob2 > probabilitythreshold)) { # need to be confident enough in gender
           format <- "lastfirst"
           genderedauthor <- genderedterm2
-        } else if (prob1 > prob2 & prob1 > probabilitythreshold) {
+        } else if ((prob1 > prob2) && (prob1 > probabilitythreshold)) {
           format <- "firstlast"
           genderedauthor <- genderedterm1
         } else { # if not sufficiently confident in either term, leave author as unknown
