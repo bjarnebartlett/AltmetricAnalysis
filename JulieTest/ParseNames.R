@@ -40,121 +40,19 @@ library(lubridate)
 afn.loaddata <- function(filename) {
   
   data <- fread(filename,sep="\t")
-  data <- data[,1:7] # get rid of excess cols
+  data <- data[,1:8] # get rid of excess cols
   colnames(data) <- c("id",
                       "altmetric_id",
                       "authors",
                       "journal",
                       "type",
+                      "doi",
                       "altmetric_score",
                       "date"
   )
-  print(head(data))
+  # print(head(data))
   
   return(data)
-}
-
-afn.getauthors <- function(article) {
-  
-  authors <- article$authors
-  authors <- gsub("\\\\xa0"," ",authors)
-  authors <- gsub("[^[:alnum:]^\'^-]"," ",authors)
-  # authors <- gsub("\\\\.* ", " ", authors)
-  
-  authorsvec <- strsplit(authors,"\' ")[[1]]
-  authorsvec <- gsub(" \'", "", authorsvec)
-  numauthors <- length(authorsvec)
-  
-  authors <- textPrepare(authors)
-  
-  return(list(authors, authorsvec, numauthors))
-  
-}
-
-
-afn.findnames <- function(authors) {
-  
-  names <- findGivenNames(authors)
-  
-  freqnames <- names[count > 100] # removes words that are unlikely to be names
-  genderednames <- freqnames[probability > 0.75] # removes names that don't confidently indicate gender
-  
-  if (TRUE %in% duplicated(genderednames)) {
-    genderednames <- distinct(genderednames) # for some reason some results are duplicated; this fixes that
-  }
-  
-  genderednames <- genderize(authors, genderednames)
-  
-  return(genderednames)
-  
-}
-
-afn.getgenderstats <- function(names, numauthors) {
-  
-  males <- length(which(names$gender=="male"))
-  females <- length(which(names$gender=="female"))
-  unknown <- numauthors-(males+females)
-  percmales <- males/numauthors
-  percfemales <- females/numauthors
-  percunknown <- unknown/numauthors
-  
-  genderstats <- data.frame(males,females, unknown, percmales, percfemales, percunknown)
-  
-  
-  return(genderstats)
-  
-}
-
-afn.assessonejournal <- function(journal_data, outfile) {
-  
-  newjournaldata <- c()
-  
-  for (i in 1:#dim(journal_data)[[1]]) { # go through all articles
-       2) { # for testing purposes to keep within 1000 api limit
-    # pull data for just one article
-    journal_article <- journal_data[i,]
-    
-    # extract authors
-    article_authors <- afn.getauthors(journal_article)
-    authors_text <- article_authors[[1]] # all authors
-    authors_order <- article_authors[[2]] # ordered vector of all authors
-    authors_num <- article_authors[[3]] # number of authors
-    
-    # looking at all authors of the article
-    allauthors_names <- afn.findnames(authors_text)
-    article_stats <- afn.getgenderstats(allauthors_names, authors_num)
-    
-    # now just first and last author
-    firstauthor <- authors_order[1]
-    lastauthor <- authors_order[length(authors_order)]
-    firstnames <- afn.findnames(firstauthor)
-    firstgender <- firstnames$gender[1] # !!! How do I pick if there's more than one?
-    lastnames <- afn.findnames(lastauthor)
-    lastgender <- lastnames$gender[1]
-    firstlast_stats <- data.frame(firstgender, lastgender)
-    article_stats <- cbind(article_stats,firstlast_stats)
-    
-    # now put everything together
-    journal_article <- cbind(journal_article, article_stats, authors_num)
-    newjournaldata <- rbind(newjournaldata, journal_article)
-  }
-  
-  fwrite(newjournaldata, outfile, sep="\t", append=TRUE)
-  
-  return(newjournaldata)
-  
-}
-
-afn.subsetdata <- function(data, year) {
-  
-  pubyear <- year(as.Date(data$date))
-  cbind(data,pubyear)
-  
-  subset <- data[which(pubyear>=year),]
-  subset <- subset[which(pubyear<2020),] # don't take things that aren't published yet
-  
-  return(subset)
-  
 }
 
 afn.cleandata <- function(data) {
@@ -177,55 +75,249 @@ afn.cleandata <- function(data) {
   # Split date into year and month
   pubyear <- year(as.Date(cleandata$date))
   pubmonth <- month(as.Date(cleandata$date))
-  cbind(cleandata,pubyear,pubmonth)
+  cleandata <- cbind(cleandata,pubyear,pubmonth)
   
   return(cleandata)
-
+  
 }
 
-afn.checkduplicates <- function(data) {
+afn.subsetdata <- function(data, year) {
   
-  exclude_dupcheck <- cleandata[which(cleandata$journal=="Nature" & cleandata$type=="news"),] # nature has a lot of science writers writing repeatedly for news pieces; these are unlikely to be duplicates
-  include_dupcheck <- cleandata[-which(cleandata$journal=="Nature" & cleandata$type=="news"),] 
+  subset <- data[which(data$pubyear>=year),]
+  subset <- subset[which(subset$pubyear<2020),] # don't take things that aren't published yet
   
-  rowstoremove <- c()
-  duplicated <- which(duplicated(include_dupcheck$authors))
+  return(subset)
   
-  for (i in duplicated) {
-    dupauthor <- include_dupcheck$authors[i]
-    dupid <- include_dupcheck$id[i]
-    duplicates <- include_dupcheck[which(include_dupcheck$authors==dupauthor),] # get the whole rows for those authors
+}
+
+afn.assessonejournal <- function(journal_data, outfile) {
+  
+  newjournaldata <- c()
+  
+  for (i in 1:#dim(journal_data)[[1]]) { # go through all articles
+       4) { # for testing purposes to keep within 1000 api limit
+    # pull data for just one article
     
-    for (j in 1:(dim(duplicates)[[1]]-1)) {
+    # print(paste("On article",i,"of journal",journal_data$journal[i]))
+    journal_article <- journal_data[i,]
+    
+    # extract authors
+    article_authors <- afn.getauthors(journal_article)
+    authors_gendered <- article_authors[[1]] # all authors
+    authors_order <- article_authors[[2]] # ordered vector of all authors
+    authors_num <- article_authors[[3]] # number of authors
+    
+    # looking at all authors of the article
+    article_stats <- afn.getgenderstats(authors_gendered, authors_num)
+    
+    # now just first and last author
+    firstauthor <- authors_order[1]
+    lastauthor <- authors_order[length(authors_order)]
+    firstgender <- authors_gendered$gender[1]
+    firstgenderprob <- authors_gendered$probability[1]
+    lastgender <- authors_gendered$gender[authors_num]
+    lastgenderprob <- authors_gendered$probability[authors_num]
+    
+    firstlast_stats <- data.frame(firstgender, firstgenderprob, lastgender, lastgenderprob)
+    article_stats <- cbind(article_stats,firstlast_stats)
+    
+    # now put everything together
+    journal_article <- cbind(journal_article, article_stats)
+    newjournaldata <- rbind(newjournaldata, journal_article)
+  }
+  
+  fwrite(newjournaldata, outfile, sep="\t", append=TRUE)
+  
+  return(newjournaldata)
+  
+}
+
+afn.getauthors <- function(article) {
+  
+  authors <- article$authors
+  cleanedauthors <- afn.cleanauthors(authors)
+  numauthors <- cleanedauthors[[2]]
+  cleanedauthors <- cleanedauthors[[1]]
+  
+  authorsformat <- afn.checkformat(cleanedauthors)
+  firstthree <- authorsformat[[1]]
+  format <- authorsformat[[2]]
+  
+  allgenderizednames <-  firstthree
+  
+  if (numauthors > 3) {
+    for (i in 4:numauthors) {
       
-      dup1 <- duplicates[j,]
-      dup2 <- duplicates[j+1,]
+      author <- cleanedauthors[i]
+      names <- strsplit(author," ")
       
-      date1 <- as.Date(dup1$date) # get the date of the first pub
-      date2 <- as.Date(dup2$date) # get the date of the second pub
-      tdif <- abs(difftime(date1, date2, units="days"))
-      
-      if (tdif < 365) { # if the two pubs are within a year of each other and have the same authors/journal, probably duplicates
-        if (dup1$id!=dupid) {
-          r <- which(include_dupcheck$id==dup1$id) # find the row number from the original df
-          rowstoremove <- c(rowstoremove, r) # need to do this via rowstoremove cause if i remove as i go, the correct row nums change
+      if (length(names[[1]])>1) {
+        # there is only one term, most likely it is a last name 
+        # don't bother genderizing
+        if (format == "firstlast") {
+          genderizedname <- unique(findGivenNames(names[[1]][1]))
+        } else if (format == "lastfirst") {
+          genderizedname <- unique(findGivenNames(names[[1]][2]))
+        } else {
+          genderizedname <- data.frame(name=names[[1]][1], gender=NA, probability=NA, count=NA, country_id=NA)
         }
-        if (dup2$id!=dupid) { # this is not an elseif b/c it could be that neither of the two dups being compared are the original dup from duplicated
-          r <- which(include_dupcheck$id==dup2$id)
-          rowstoremove <- c(rowstoremove, r)
-        }
+        allgenderizednames <- rbind(allgenderizednames, genderizedname)
       }
-      
     }
   }
-  rowstoremove <- unique(rowstoremove)
-  include_dupcheck <- include_dupcheck[-rowstoremove,]
   
-  cleandata <- rbind(exclude_dupcheck, include_dupcheck)
+  return(list(allgenderizednames, cleanedauthors, numauthors))
   
-  return(cleandata)
 }
 
+afn.getgenderstats <- function(names, numauthors) {
+  
+  males <- length(which(names$gender=="male"))
+  females <- length(which(names$gender=="female"))
+  unknown <- numauthors-(males+females)
+  percmales <- males/numauthors
+  percfemales <- females/numauthors
+  percunknown <- unknown/numauthors
+  
+  genderstats <- data.frame(males,females, unknown, percmales, percfemales, percunknown, numauthors)
+  
+  return(genderstats)
+  
+}
+
+afn.cleanauthors <- function(authorsvector) {
+  
+  authors <- gsub("\\\\xa0"," ",authorsvector)
+  authors <- gsub("[^[:alnum:]^\'^-]"," ",authors)
+  
+  authorsvec <- strsplit(authors,"\' ")[[1]]
+  authorsvec <- gsub(" \'", "", authorsvec)
+  
+  authors <- gsub("^von ","von",authorsvec)
+  authors <- gsub(" von "," von",authors)
+  authors <- gsub("Van de ","VanDe",authors)
+  authors <- gsub("[A-Z] ","",authors) # get rid of beginning/middle initials
+  authors <- gsub("[A-Z][A-Z]","",authors) # get rid of FM initials
+  authors <- gsub(" [A-Z]$","",authors) # get rid of initials at end
+  authors <- gsub("  ", " ", authors)
+  authors <- gsub("- "," ",authors)
+  authors <- gsub(" -"," ",authors)
+  authors <- trimws(authors)
+  
+  numauthors <- length(authorsvec)
+  
+  return(list(authors, numauthors))
+  
+}
+
+afn.checkformat <- function(authorvec) {
+  
+  # Name format should be one of:
+  # First Last
+  # First Middle Last
+  # Last First
+  # Last First Middle
+  
+  # First name is only ever first or second term
+  # So can ignore third term
+  
+  formats <- c()
+  genderedauthors <- data.frame(name=character(),gender=factor(),probability=numeric(),count=numeric(),country_id=factor())
+  
+  # let's try to determine pattern from first 3 authors
+  if (length(authorvec) < 3) {
+    loops <- length(authorvec)
+  } else if (length(authorvec) >= 3) {
+    loops <- 3
+  }
+  
+  for (i in 1:loops) {
+    
+    formattest <- afn.testfirstfew(authorvec, i, confthreshold)
+    format <- formattest[[1]]
+    genderedauthor <- formattest[[2]]
+    
+    formats <- c(formats, format)
+    genderedauthors <- rbind(genderedauthors, genderedauthor)
+  }
+  
+  # checked first 3 authors
+  # based on these, does it seem like format is firstlast or lastfirst?
+  numfirstlast <- length(which(formats=="firstlast"))
+  numlastfirst <- length(which(formats=="lastfirst"))
+  numnofirst <- length(which(formats=="nofirstname"))
+  numunknown <- length(which(formats=="unknown"))
+  
+  df <- data.frame(firstlast=numfirstlast, 
+                   lastfirst=numlastfirst, 
+                   nofirstname=numnofirst,
+                   unknown=numunknown)
+  df <- sort(df,decreasing=TRUE)
+  
+  if (df[1,1] > df[1,2]) { # there is a unique max
+    authorformat <- colnames(df)[1]
+  } else { # there is no unique max
+    authorformat <- "firstlast" # best guess - from looking at tsv's, most articles seem to have firstlast format
+  }
+  
+  return(list(genderedauthors, authorformat)) # return the genderized ones so we don't have to do them again, plus the format
+  
+}
+
+afn.testfirstfew <- function(authors, i, confthresh) {
+  
+  author <- authors[i]
+  names <- strsplit(author," ")
+  
+  if (length(names[[1]])>1) { # if there is only one term, most likely it is a last name so don't bother genderizing
+    
+    term1 <- names[[1]][1]
+    term2 <- names[[1]][2]
+    
+    genderedterm1 <- unique(findGivenNames(term1))
+    
+    if (dim(genderedterm1)[[1]]==0) { # if there are no rows
+      
+      format <- "unknown"
+      genderedauthor <- data.frame(name=NA,gender=NA,probability=NA,count=NA,country_id=NA)
+      
+    } else {
+      
+      prob1 <- as.numeric(genderedterm1$probability)
+      
+      if (prob1 > confthresh) { # if term is 90% prob male or female, it's likely a first name, don't bother genderizing next terms
+        
+        format <- "firstlast"
+        genderedauthor <- genderedterm1
+        
+      } else { # if uncertain that term1 is firstname, check term2
+        
+        genderedterm2 <- unique(findGivenNames(term2))
+        prob2 <- as.numeric(genderedterm2$probability)
+        
+        if (dim(genderedterm2)[[1]]==0) { # if there are no rows
+          format <- "unknown"
+          genderedauthor <- data.frame(name=NA,gender=NA,probability=NA,count=NA,country_id=NA)
+        } else if (prob2 > prob1 & prob2 > probabilitythreshold) { # need to be confident enough in gender
+          format <- "lastfirst"
+          genderedauthor <- genderedterm2
+        } else if (prob1 > prob2 & prob1 > probabilitythreshold) {
+          format <- "firstlast"
+          genderedauthor <- genderedterm1
+        } else { # if not sufficiently confident in either term, leave author as unknown
+          format <- "unknown"
+          genderedauthor <- data.frame(name=NA,gender=NA,probability=NA,count=NA,country_id=NA)
+        }
+      }
+    }
+  } else {
+    format <- "nofirstname"
+    genderedauthor <- data.frame(name=NA,gender=NA,probability=NA,count=NA,country_id=NA)
+  }
+  
+  return(list(format, genderedauthor))
+  
+}
 
 
 #################
@@ -234,47 +326,79 @@ afn.checkduplicates <- function(data) {
 
 subsetyear <- 2011
 
-fname_biorxiv <- "bioRxiv.tsv"
+sink("./JulieTest/JournalLevelCleaning.txt")
+
+fname_biorxiv <- "./Data091019/bioRxiv.tsv"
 alldata_biorxiv <- afn.loaddata(fname_biorxiv)
-data_biorxiv <- afn.subsetdata(alldata_biorxiv,subsetyear)
-data_biorxiv <- afn.cleandata(data_biorxiv)
+print(paste("There are",dim(alldata_biorxiv)[[1]],"articles in BioRxiv"))
+cleandata_biorxiv <- afn.cleandata(alldata_biorxiv)
+print(paste("There are",dim(cleandata_biorxiv)[[1]],"articles in BioRxiv after cleaning (i.e. removing articles with no date/no author)"))
+data_biorxiv <- afn.subsetdata(cleandata_biorxiv,subsetyear)
+print(paste("There are",dim(data_biorxiv)[[1]],"articles in BioRxiv between",subsetyear,"and end of 2019"))
+print("***")
 
-fname_cell <- "Cell.tsv"
+fname_cell <- "./Data091019/Cell.tsv"
 alldata_cell <- afn.loaddata(fname_cell)
-data_cell <- afn.subsetdata(alldata_cell,subsetyear)
-data_cell <- afn.cleandata(data_cell)
+print(paste("There are",dim(alldata_cell)[[1]],"articles in Cell"))
+cleandata_cell <- afn.cleandata(alldata_cell)
+print(paste("There are",dim(cleandata_cell)[[1]],"articles in Cell after cleaning (i.e. removing articles with no date/no author)"))
+data_cell <- afn.subsetdata(cleandata_cell,subsetyear)
+print(paste("There are",dim(data_cell)[[1]],"articles in Cell between",subsetyear,"and end of 2019"))
+print("***")
 
-fname_nature <- "Nature.tsv"
+fname_nature <- "./Data091019/Nature.tsv"
 alldata_nature <- afn.loaddata(fname_nature)
-data_nature <- afn.subsetdata(alldata_nature,subsetyear)
-data_nature <- afn.cleandata(data_nature)
+print(paste("There are",dim(alldata_nature)[[1]],"articles in Nature"))
+cleandata_nature <- afn.cleandata(alldata_nature)
+print(paste("There are",dim(cleandata_nature)[[1]],"articles in Nature after cleaning (i.e. removing articles with no date/no author)"))
+data_nature <- afn.subsetdata(cleandata_nature,subsetyear)
+print(paste("There are",dim(data_nature)[[1]],"articles in Nature between",subsetyear,"and end of 2019"))
+print("***")
 
-fname_nejm <- "NEJM.tsv"
+fname_nejm <- "./Data091019/NEJM.tsv"
 alldata_nejm <- afn.loaddata(fname_nejm)
-data_nejm <- afn.subsetdata(alldata_nejm,subsetyear)
-data_nejm <- afn.cleandata(data_nejm)
+print(paste("There are",dim(alldata_nejm)[[1]],"articles in NEJM"))
+cleandata_nejm <- afn.cleandata(alldata_nejm)
+print(paste("There are",dim(cleandata_nejm)[[1]],"articles in NEJM after cleaning (i.e. removing articles with no date/no author)"))
+data_nejm <- afn.subsetdata(cleandata_nejm,subsetyear)
+print(paste("There are",dim(data_nejm)[[1]],"articles in NEJM between",subsetyear,"and end of 2019"))
+print("***")
 
-fname_pnas <- "PNAS.tsv"
+fname_pnas <- "./Data091019/PNAS.tsv"
 alldata_pnas <- afn.loaddata(fname_pnas)
-data_pnas <- afn.subsetdata(alldata_pnas,subsetyear)
-data_pnas <- afn.cleandata(data_pnas)
+print(paste("There are",dim(alldata_pnas)[[1]],"articles in PNAS"))
+cleandata_pnas <- afn.cleandata(alldata_pnas)
+print(paste("There are",dim(cleandata_pnas)[[1]],"articles in PNAS after cleaning (i.e. removing articles with no date/no author)"))
+data_pnas <- afn.subsetdata(cleandata_pnas,subsetyear)
+print(paste("There are",dim(data_pnas)[[1]],"articles in PNAS between",subsetyear,"and end of 2019"))
+print("***")
 
-fname_science <- "Science.tsv"
+fname_science <- "./Data091019/Science.tsv"
 alldata_science <- afn.loaddata(fname_science)
-data_science <- afn.subsetdata(alldata_science,subsetyear)
-data_science <- afn.cleandata(data_science)
+print(paste("There are",dim(alldata_science)[[1]],"articles in Science"))
+cleandata_science <- afn.cleandata(alldata_science)
+print(paste("There are",dim(cleandata_science)[[1]],"articles in Science after cleaning (i.e. removing articles with no date/no author)"))
+data_science <- afn.subsetdata(cleandata_science,subsetyear)
+print(paste("There are",dim(data_science)[[1]],"articles in Science between",subsetyear,"and end of 2019"))
+print("***")
 
+fname_plos <- "./Data091019/PLoS ONE.tsv"
+alldata_plos <- afn.loaddata(fname_plos)
+print(paste("There are",dim(alldata_plos)[[1]],"articles in PLoS ONE"))
+cleandata_plos <- afn.cleandata(alldata_plos)
+print(paste("There are",dim(cleandata_plos)[[1]],"articles in PLoS ONE after cleaning (i.e. removing articles with no date/no author)"))
+data_plos <- afn.subsetdata(cleandata_plos,subsetyear)
+print(paste("There are",dim(data_plos)[[1]],"articles in PLoS ONE between",subsetyear,"and end of 2019"))
+print("***")
 
-###################
-### GET AUTHORS ###
-###################
-
-a <- afn.getauthors(data_biorxiv)
-a
+sink()
 
 ######################
 ### GENDERIZE DATA ###
 ######################
+
+probabilitythreshold <- 0.75
+confthreshold <- 0.9
 
 outname_biorxiv <- "JulieTest/GenderizedByJournal/NewBioRxiv.tsv"
 newdata_biorxiv <- afn.assessonejournal(data_biorxiv,outname_biorxiv)
@@ -294,12 +418,10 @@ newdata_pnas <- afn.assessonejournal(data_pnas,outname_pnas)
 outname_science <- "JulieTest/GenderizedByJournal/NewScience.tsv"
 newdata_science <- afn.assessonejournal(data_science,outname_science)
 
+outname_plos <- "JulieTest/GenderizedByJournal/NewPLoSONE.tsv"
+newdata_plos <- afn.assessonejournal(data_plos,outname_plos)
 
 
 
-
-
-
-# PROBLEM: genderizeR has a limit of 1000 records per day
 
 
