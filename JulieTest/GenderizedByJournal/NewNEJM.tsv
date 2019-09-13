@@ -1,5 +1,6 @@
-id	altmetric_id	authors	journal	type	doi	altmetric_score	date	pubyear	pubmonth	males	females	unknown	percmales	percfemales	percunknown	numauthors	firstgender	firstgenderprob	lastgender	lastgenderprob
-19	980029	['Kenneth S. Polonsky', 'Polonsky, Kenneth S.']	New England Journal of Medicine	article	10.1056/nejmra1110560	311.2	2012-10-04T00:00:00+00:00	2012	10	1	0	1	0.5	0	0.5	2	male	0.98		
+id	altmetric_id	authors	journal	type	doi	altmetric_score	date	pubyear	pubmonth	males	females	unknown	propmales	propfemales	propunknown	numauthors	firstgender	firstgenderprob	lastgender	lastgenderprob
+19	980029	['Kenneth S. Polonsky', 'Polonsky, Kenneth S.']	New England Journal of Medicine	article	10.1056/nejmra1110560	311.2	2012-10-04T00:00:00+00:00	2012	10	1	0	0	1	0	0	1	male	0.98	male	0.98
 3804	4443323	['Haeberle, Helene', 'Körner, Andreas', 'Rosenberger, Peter']	New England Journal of Medicine	article	10.1056/nejmc1506819#sa4	0.25	2015-08-27T22:00:29+00:00	2015	8	1	1	1	0.333333333333333	0.333333333333333	0.333333333333333	3	female	0.98	male	0.99
-4094	269982	['Gail R. Wilensky', 'Wilensky GR', 'Wilensky, Gail R.']	New England Journal of Medicine	article	10.1056/nejmp1110185	54.598	2011-09-14T00:00:00+00:00	2011	9	1	1	1	0.333333333333333	0.333333333333333	0.333333333333333	3	female	0.94	male	1
+4094	269982	['Gail R. Wilensky', 'Wilensky GR', 'Wilensky, Gail R.']	New England Journal of Medicine	article	10.1056/nejmp1110185	54.598	2011-09-14T00:00:00+00:00	2011	9	1	0	0	1	0	0	1	male	1	male	1
 5386	23377720	['Saillard, Colombe', 'Darmon, Michael', 'Mokart, Djamel']	New England Journal of Medicine	article	10.1056/nejmc1707248	9.75	2017-08-03T00:00:00+00:00	2017	8	2	1	0	0.666666666666667	0.333333333333333	0	3	female	0.95	male	1
+6389	3976955	['Stock, Stephanie']	New England Journal of Medicine	article	10.1056/nejmp1413625	9.5	2015-05-08T22:04:16+00:00	2015	5	0	1	0	0	1	0	1	female	0.98	female	0.98

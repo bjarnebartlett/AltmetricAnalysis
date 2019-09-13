@@ -1,5 +1,6 @@
-id	altmetric_id	authors	journal	type	doi	altmetric_score	date	pubyear	pubmonth	males	females	unknown	percmales	percfemales	percunknown	numauthors	firstgender	firstgenderprob	lastgender	lastgenderprob
-387	3061952	['Yu-yu Ren', 'Lauren G Koch', 'Steven L Britton', 'Nathan R Qi', 'Mary K Treutelaar', 'Charles F Burant', 'Jun Z Li']	bioRxiv	article	10.1101/013706	1.5	2015-01-13T00:00:00+00:00	2015	1	5	2	0	0.714285714285714	0.285714285714286	0	7	male	0.95	male	0.9
+id	altmetric_id	authors	journal	type	doi	altmetric_score	date	pubyear	pubmonth	males	females	unknown	propmales	propfemales	propunknown	numauthors	firstgender	firstgenderprob	lastgender	lastgenderprob
+387	3061952	['Yu-yu Ren', 'Lauren G Koch', 'Steven L Britton', 'Nathan R Qi', 'Mary K Treutelaar', 'Charles F Burant', 'Jun Z Li']	bioRxiv	article	10.1101/013706	1.5	2015-01-13T00:00:00+00:00	2015	1	5	1	1	0.714285714285714	0.142857142857143	0.142857142857143	7	male	0.95	male	0.9
 2021	3096387	['Maria Botcharova', 'Luc Berthouze', 'Matthew J Brookes', 'Gareth R Barnes', 'Simon F Farmer']	bioRxiv	article	10.1101/014159	1.75	2015-01-22T00:00:00+00:00	2015	1	4	1	0	0.8	0.2	0	5	female	0.98	male	0.98
 3361	4623150	['Marie Tolkiehn', 'Simon Schultz']	bioRxiv	article	10.1101/029108	0.75	2015-10-14T00:00:00+00:00	2015	10	1	1	0	0.5	0.5	0	2	female	0.98	male	0.98
 3486	27703499	['Sudhir Varma']	bioRxiv	article	10.1101/202952	3.5	2017-10-20T00:00:00+00:00	2017	10	1	0	0	1	0	0	1	male	1	male	1
+3535	10223175	['Arjun S Adhikari', 'Kristina B Kooiker', 'Chao Liu', 'Saswata S Sarkar', 'Daniel Bernstein', 'James A Spudich', 'Kathleen M Ruppel']	bioRxiv	article	10.1101/067066	2	2016-08-02T00:00:00+00:00	2016	8	4	2	1	0.571428571428571	0.285714285714286	0.142857142857143	7	male	0.99	female	0.98
