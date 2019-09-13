@@ -325,7 +325,7 @@ afn.testfirstfew <- function(authors, i, confthresh) {
       
       prob1 <- as.numeric(genderedterm1$probability)
       
-      if (prob1 > confthresh) { # if term is 90% prob male or female, it's likely a first name, don't bother genderizing next terms
+      if (prob1 >= confthresh) { # if term is 90% prob male or female, it's likely a first name, don't bother genderizing next terms
         
         format <- "firstlast"
         genderedauthor <- genderedterm1
@@ -521,8 +521,8 @@ data_plos <- afn.subsetdata(cleandata_plos,subsetyear)
 ### GENDERIZE DATA ###
 ######################
 
-probabilitythreshold <- 0.75
-confthreshold <- 0.9
+probabilitythreshold <- 0.9
+confthreshold <- 0.95
 
 outname_biorxiv <- "JulieTest/GenderizedByJournal/NewBioRxiv.tsv"
 newdata_biorxiv <- afn.assessonejournal(data_biorxiv,outname_biorxiv)
