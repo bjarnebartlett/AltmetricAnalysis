@@ -86,7 +86,7 @@ afn.cleandata <- function(data) {
 afn.subsetdata <- function(data, year) {
   
   subset <- data[which(data$pubyear>=year),]
-  subset <- subset[which(subset$pubyear<2020),] # don't take things that aren't published yet
+  subset <- subset[which(subset$pubyear<2019),] # don't take things that aren't published yet
   
   return(subset)
   
@@ -96,8 +96,8 @@ afn.assessonejournal <- function(journal_data, outfile) {
   
   newjournaldata <- c()
   
-  for (i in 1:#dim(journal_data)[[1]]) { # go through all articles
-       5) { # for testing purposes to keep within 1000 api limit
+  for (i in startarticlenum: #dim(journal_data)[[1]]) { # go through all articles
+       endarticlenum) { # for testing purposes to keep within 1000 api limit
     # pull data for just one article
     
     print(paste("On article",i,"of journal",journal_data$journal[i]))
@@ -153,15 +153,18 @@ afn.getauthors <- function(article) {
     for (i in 4:numauthors) {
       
       author <- nondupauthors[i]
+      author <- gsub("^[A-Z] ","",author) # if there are any legacy initials from afn.checkduplicateauthors
+      author <- gsub(" [A-Z]$","",author) # get rid of them
+      
       names <- strsplit(author," ")
       
       if (length(names[[1]])>1) {
         # there is only one term, most likely it is a last name 
         # don't bother genderizing
         if (format == "firstlast") {
-          genderizedname <- unique(findGivenNames(names[[1]][1]))#,apikey="d92354e95b4ff49e7944cd9395e4f908"))
+          genderizedname <- findGivenNames(names[[1]][1])[1]#,apikey="d92354e95b4ff49e7944cd9395e4f908" # look only at first - if there are composite names (Wei-Ming) only the first will be looked at
         } else if (format == "lastfirst") {
-          genderizedname <- unique(findGivenNames(names[[1]][2]))#,apikey="d92354e95b4ff49e7944cd9395e4f908"))
+          genderizedname <- findGivenNames(names[[1]][2])[1]#,apikey="d92354e95b4ff49e7944cd9395e4f908"
         } else {
           genderizedname <- data.frame(name=names[[1]][1], gender=NA, probability=NA, count=NA, country_id=NA)
         }
@@ -314,7 +317,8 @@ afn.testfirstfew <- function(authors, i, confthresh) {
     term1 <- names[[1]][1]
     term2 <- names[[1]][2]
     
-    genderedterm1 <- unique(findGivenNames(term1))#,apikey="d92354e95b4ff49e7944cd9395e4f908"))
+    genderedterm1 <- findGivenNames(term1)[1]#,apikey="d92354e95b4ff49e7944cd9395e4f908"))
+    genderedterm1 <- genderedterm1[count>100] # rules out terms that are probably not first names?
     
     if (dim(genderedterm1)[[1]]==0) { # if there are no rows
       
@@ -332,7 +336,8 @@ afn.testfirstfew <- function(authors, i, confthresh) {
         
       } else { # if uncertain that term1 is firstname, check term2
         
-        genderedterm2 <- unique(findGivenNames(term2))#,apikey="d92354e95b4ff49e7944cd9395e4f908"))
+        genderedterm2 <- findGivenNames(term2)[1]#,apikey="d92354e95b4ff49e7944cd9395e4f908"))
+        genderedterm2 <- genderedterm2[count>100]
         prob2 <- as.numeric(genderedterm2$probability)
         
         if (dim(genderedterm2)[[1]]==0) { # if there are no rows
@@ -501,6 +506,11 @@ alldata_nejm <- afn.loaddata(fname_nejm)
 cleandata_nejm <- afn.cleandata(alldata_nejm)
 data_nejm <- afn.subsetdata(cleandata_nejm,subsetyear)
 
+fname_plos <- "./Data091019/PLoS ONE.tsv"
+alldata_plos <- afn.loaddata(fname_plos)
+cleandata_plos <- afn.cleandata(alldata_plos)
+data_plos <- afn.subsetdata(cleandata_plos,subsetyear)
+
 fname_pnas <- "./Data091019/PNAS.tsv"
 alldata_pnas <- afn.loaddata(fname_pnas)
 cleandata_pnas <- afn.cleandata(alldata_pnas)
@@ -511,11 +521,6 @@ alldata_science <- afn.loaddata(fname_science)
 cleandata_science <- afn.cleandata(alldata_science)
 data_science <- afn.subsetdata(cleandata_science,subsetyear)
 
-fname_plos <- "./Data091019/PLoS ONE.tsv"
-alldata_plos <- afn.loaddata(fname_plos)
-cleandata_plos <- afn.cleandata(alldata_plos)
-data_plos <- afn.subsetdata(cleandata_plos,subsetyear)
-
 
 ######################
 ### GENDERIZE DATA ###
@@ -524,27 +529,52 @@ data_plos <- afn.subsetdata(cleandata_plos,subsetyear)
 probabilitythreshold <- 0.9
 confthreshold <- 0.95
 
+# change these for testing
+# when not testing, go into afn.assessonejournal
+startarticlenum <- 21
+endarticlenum <- 50
+
 outname_biorxiv <- "JulieTest/GenderizedByJournal/NewBioRxiv.tsv"
+start <- Sys.time()
 newdata_biorxiv <- afn.assessonejournal(data_biorxiv,outname_biorxiv)
+end <- Sys.time()
+print(paste("For bioRxiv",end-start))
 
 outname_cell <- "JulieTest/GenderizedByJournal/NewCell.tsv"
+start <- Sys.time()
 newdata_cell <- afn.assessonejournal(data_cell,outname_cell)
+end <- Sys.time()
+print(paste("For Cell",end-start))
 
 outname_nature <- "JulieTest/GenderizedByJournal/NewNature.tsv"
+start <- Sys.time()
 newdata_nature <- afn.assessonejournal(data_nature,outname_nature)
+end <- Sys.time()
+print(paste("For Nature",end-start))
 
 outname_nejm <- "JulieTest/GenderizedByJournal/NewNEJM.tsv"
+start <- Sys.time()
 newdata_nejm <- afn.assessonejournal(data_nejm,outname_nejm)
-
-outname_pnas <- "JulieTest/GenderizedByJournal/NewPNAS.tsv"
-newdata_pnas <- afn.assessonejournal(data_pnas,outname_pnas)
-
-outname_science <- "JulieTest/GenderizedByJournal/NewScience.tsv"
-newdata_science <- afn.assessonejournal(data_science,outname_science)
+end <- Sys.time()
+print(paste("For NEJM",end-start))
 
 outname_plos <- "JulieTest/GenderizedByJournal/NewPLoSONE.tsv"
+start <- Sys.time()
 newdata_plos <- afn.assessonejournal(data_plos,outname_plos)
+end <- Sys.time()
+print(paste("For PLoS ONE",end-start))
 
+outname_pnas <- "JulieTest/GenderizedByJournal/NewPNAS.tsv"
+start <- Sys.time()
+newdata_pnas <- afn.assessonejournal(data_pnas,outname_pnas)
+end <- Sys.time()
+print(paste("For PNAS",end-start))
+
+outname_science <- "JulieTest/GenderizedByJournal/NewScience.tsv"
+start <- Sys.time()
+newdata_science <- afn.assessonejournal(data_science,outname_science)
+end <- Sys.time()
+print(paste("For Science",end-start))
 
 ##################
 ### PRINT INFO ###
