@@ -1,6 +1,21 @@
 id	altmetric_id	authors	journal	type	doi	altmetric_score	date	pubyear	pubmonth	males	females	unknown	propmales	propfemales	propunknown	numauthors	firstgender	firstgenderprob	lastgender	lastgenderprob
 860	2100172	['Alison Abbott']	Nature	news	10.1038/506024a	102.866	2014-02-06T00:00:00+00:00	2014	2	0	1	0	0	1	0	1	female	0.98	female	0.98
 979	10799833	['Jennifer McGowan', 'Hugh P. Possingham', 'Ken Anthony']	Nature	article	10.1038/536396a	18.35	2016-08-24T00:00:00+00:00	2016	8	2	1	0	0.666666666666667	0.333333333333333	0	3	female	0.98	male	0.98
-1357	535432	['Sandberg MK', 'Al-Doujaily H', 'Sharps B', 'Clarke AR', 'Collinge J', 'Malin K. Sandberg', 'Huda Al-Doujaily', 'Bernadette Sharps', 'Anthony R. Clarke', 'John Collinge']	Nature	article	10.1038/nature09768	6	2011-02-27T00:00:00+00:00	2011	2	2	1	2	0.4	0.2	0.4	5	female	0.95		
+1357	535432	['Sandberg MK', 'Al-Doujaily H', 'Sharps B', 'Clarke AR', 'Collinge J', 'Malin K. Sandberg', 'Huda Al-Doujaily', 'Bernadette Sharps', 'Anthony R. Clarke', 'John Collinge']	Nature	article	10.1038/nature09768	6	2011-02-27T00:00:00+00:00	2011	2	0	0	5	0	0	1	5				
 2103	32074556	['B. E. Tetarenko', 'J.-P. Lasota', 'C. O. Heinke', 'G. Dubus', 'G. R. Sivakoff', 'J. -P. Lasota']	Nature	article	10.1038/nature25159	115.712	2018-01-22T00:00:00+00:00	2018	1	0	0	5	0	0	1	5				
 3834	4970740	['Zach Zorich']	Nature	news	10.1038/nature.2016.19131	176.778	2016-01-08T00:00:00+00:00	2016	1	1	0	0	1	0	0	1	male	0.99	male	0.99
+5733	1982226	['Dan Erlanson']	Nature	article	10.1038/471672a	1	2011-03-30T00:00:00+00:00	2011	3	1	0	0	1	0	0	1	male	0.95	male	0.95
+5763	2284512	['Preston Grassmann']	Nature	article	10.1038/508426a	0.5	2014-04-16T00:00:00+00:00	2014	4	1	0	0	1	0	0	1	male	0.98	male	0.98
+8522	4545206	['Hong Yang', 'Julian R. Thompson', 'Roger J. Flower']	Nature	article	10.1038/525455e	2.5	2015-09-23T00:00:00+00:00	2015	9	2	0	1	0.666666666666667	0	0.333333333333333	3			male	0.98
+9111	1223238	['Matthew R. Warr', 'Mikhail Binnewies', 'Johanna Flach', 'Damien Reynaud', 'Trit Garg', 'Ritu Malhotra', 'Jayanta Debnath', 'Emmanuelle PasseguÃ©', 'Warr MR', 'Binnewies M', 'Flach J', 'Reynaud D', 'Garg T', 'Malhotra R', 'Debnath J', 'Passegué E', 'Emmanuelle Passegué']	Nature	article	10.1038/nature11895	12.05	2013-02-06T00:00:00+00:00	2013	2	5	3	1	0.555555555555556	0.333333333333333	0.111111111111111	9	female	0.97		
+10216	2224186	['Norihiro Nakamura', 'Jennie R. Lill', 'Qui Phung', 'Zhaoshi Jiang', 'Corey Bakalarski', 'Ann de Mazière', 'Judith Klumperman', 'Megan Schlatter', 'Lélia Delamarre', 'Ira Mellman']	Nature	article	10.1038/nature13133	10.75	2014-03-30T00:00:00+00:00	2014	3	3	5	2	0.3	0.5	0.2	10	male	1	female	0.92
+11786	2042908	['Eugenie Samuel Reich']	Nature	news	10.1038/505273a	199.55	2014-01-16T00:00:00+00:00	2014	1	0	1	0	0	1	0	1	female	0.97	female	0.97
+13304	21230438	['Kamaljit S. Bawa', 'R. Ganesan']	Nature	article	10.1038/546474d	9.2	2017-06-21T00:00:00+00:00	2017	6	0	0	2	0	0	1	2				
+13714	2329668	['Alexandra Witze']	Nature	news	10.1038/nature.2014.15158	62.25	2014-05-06T00:00:00+00:00	2014	5	0	1	0	0	1	0	1	female	0.98	female	0.98
+14405	11998496	['Quirin Schiermeier']	Nature	news	10.1038/nature.2016.20590	457.096	2016-09-14T00:00:00+00:00	2016	9	0	0	1	0	0	1	1				
+14809	15232371	['Christopher J. Evans', 'Evans, Christopher J']	Nature	article	10.1038/541030a	28.35	2017-01-04T00:00:00+00:00	2017	1	1	0	0	1	0	0	1	male	0.99	male	0.99
+15303	496444	['Meredith Wadman']	Nature	news	10.1038/nature.2011.9663	71.43	2011-12-16T00:00:00+00:00	2011	12	0	1	0	0	1	0	1	female	0.96	female	0.96
+15604	3082280	['Richard Van Noorden']	Nature	news	10.1038/nature.2015.16763	513.672	2015-01-20T00:00:00+00:00	2015	1	1	0	0	1	0	0	1	male	0.99	male	0.99
+22798	1290750	['Bruce B. Collette', 'Beth Polidoro', 'Kent Carpenter', 'Collette BB', 'Polidoro B', 'Carpenter K']	Nature	article	10.1038/495047a	0.25	2013-03-06T00:00:00+00:00	2013	3	2	1	0	0.666666666666667	0.333333333333333	0	3	male	0.98	male	0.98
+23519	3931981	['Jan Zalasiewicz', 'Zalasiewicz, Jan']	Nature	article	10.1038/520436b	24.842	2015-04-22T00:00:00+00:00	2015	4	1	0	0	1	0	0	1	male	0.95	male	0.95
+24020	3954496	['Jin Dong-Yan', 'Felix Cheung']	Nature	article	10.1038/520s37a	10.25	2015-04-29T00:00:00+00:00	2015	4	2	0	0	1	0	0	2	male	0.92	male	0.98
