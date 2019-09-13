@@ -530,9 +530,17 @@ probabilitythreshold <- 0.9
 confthreshold <- 0.95
 
 # change these for testing
-# when not testing, go into afn.assessonejournal
-startarticlenum <- 21
-endarticlenum <- 50
+# when not testing, go into afn.assessonejournal and change indices for the loop
+startarticlenum <- 1
+endarticlenum <- 20
+
+numarticles <- dim(data_biorxiv)[[1]] +
+  dim(data_cell)[[1]] +
+  dim(data_nature)[[1]] +
+  dim(data_nejm)[[1]] +
+  dim(data_plos)[[1]] +
+  dim(data_pnas)[[1]] +
+  dim(data_science)[[1]]
 
 outname_biorxiv <- "JulieTest/GenderizedByJournal/NewBioRxiv.tsv"
 start <- Sys.time()
