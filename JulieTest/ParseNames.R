@@ -106,8 +106,9 @@ afn.assessonejournal <- function(journal_data, outfile) {
     # extract authors
     article_authors <- afn.getauthors(journal_article)
     authors_gendered <- article_authors[[1]] # all authors
-    authors_order <- article_authors[[2]] # ordered vector of all authors
-    authors_num <- article_authors[[3]] # number of authors
+    authors_format <- article_authors[[2]]
+    authors_order <- article_authors[[3]] # ordered vector of all authors
+    authors_num <- article_authors[[4]] # number of authors
     
     # looking at all authors of the article
     article_stats <- afn.getgenderstats(authors_gendered, authors_num)
@@ -124,7 +125,7 @@ afn.assessonejournal <- function(journal_data, outfile) {
     article_stats <- cbind(article_stats,firstlast_stats)
     
     # now put everything together
-    journal_article <- cbind(journal_article, article_stats)
+    journal_article <- cbind(journal_article, article_stats, authors_format)
     newjournaldata <- rbind(newjournaldata, journal_article)
   }
   
@@ -162,9 +163,11 @@ afn.getauthors <- function(article) {
         # there is only one term, most likely it is a last name 
         # don't bother genderizing
         if (format == "firstlast") {
-          genderizedname <- findGivenNames(names[[1]][1])[1]#,apikey="d92354e95b4ff49e7944cd9395e4f908" # look only at first - if there are composite names (Wei-Ming) only the first will be looked at
+          genderizedname <- findGivenNames(names[[1]][1])[1] # look only at first - if there are composite names (Wei-Ming) only the first will be looked at
+          # genderizedname <- findGivenNames(names[[1]][1],apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
         } else if (format == "lastfirst") {
-          genderizedname <- findGivenNames(names[[1]][2])[1]#,apikey="d92354e95b4ff49e7944cd9395e4f908"
+          genderizedname <- findGivenNames(names[[1]][2])[1]
+          # genderizedname <- findGivenNames(names[[1]][2],apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
         } else {
           genderizedname <- data.frame(name=names[[1]][1], gender=NA, probability=NA, count=NA, country_id=NA)
         }
@@ -173,7 +176,7 @@ afn.getauthors <- function(article) {
     }
   }
   
-  return(list(allgenderizednames, nondupauthors, numauthors))
+  return(list(allgenderizednames, format, nondupauthors, numauthors))
   
 }
 
@@ -213,16 +216,29 @@ afn.cleanauthors <- function(authorsvector) {
   authorsvec <- gsub("Sr","",authorsvec)
   
   
-  authorsvec <- gsub(" [A-Z] "," ",authorsvec) # get rid of middle initials
   for (i in 1:length(authorsvec)) {
     auth <- authorsvec[i]
     initials <- str_extract(auth,"[A-Z]{2}") # extract more than one consecutive uppercase letter
+    spacedinitials <- str_extract(auth,"[A-Z] [A-Z] ")
+    spacedinitials2 <- str_extract(auth,"[A-Z] [A-Z]$")
     if (!is.na(initials)) {
       initial <- substr(initials,1,1) # take only the first one
       auth <- gsub(initials,initial,auth) # turn FM initials into just F
       authorsvec[i] <- auth
     }
+    if (!is.na(spacedinitials)) {
+      initial <- substr(spacedinitials,1,2)
+      auth <- gsub(spacedinitials,initial,auth)
+      authorsvec[i] <- auth
+    }
+    if (!is.na(spacedinitials2)) {
+      initial <- substr(spacedinitials2,1,1)
+      auth <- gsub(spacedinitials2,initial,auth)
+      authorsvec[i] <- auth
+    }
   }
+  authorsvec <- gsub(" [A-Z] "," ",authorsvec) # get rid of any lone initials (most likely middle initial)
+  
   
   # authorsvec <- gsub("[A-Z] ","",authorsvec) # get rid of beginning/middle initials
   # authorsvec <- gsub(" [A-Z]$","",authorsvec) # get rid of initials at end
@@ -317,43 +333,41 @@ afn.testfirstfew <- function(authors, i, confthresh) {
     term1 <- names[[1]][1]
     term2 <- names[[1]][2]
     
-    genderedterm1 <- findGivenNames(term1)[1]#,apikey="d92354e95b4ff49e7944cd9395e4f908"))
+    genderedterm1 <- findGivenNames(term1)[1]
+    # genderedterm1 <- findGivenNames(term1,apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
     genderedterm1 <- genderedterm1[count>100] # rules out terms that are probably not first names?
     
-    if (dim(genderedterm1)[[1]]==0) { # if there are no rows
-      
-      format <- "unknown"
-      genderedauthor <- data.frame(name=NA,gender=NA,probability=NA,count=NA,country_id=NA)
-      
+    if (dim(genderedterm1)[[1]]==0) { # term1 isn't in the db (enough times)
+      prob1 <- 0.5 # it could go either way
     } else {
-      
       prob1 <- as.numeric(genderedterm1$probability)
+    }
+    
+    if (prob1 >= confthresh) { # if term is 90% prob male or female, it's likely a first name, don't bother genderizing next terms
+      format <- "firstlast"
+      genderedauthor <- genderedterm1
+    } else { # if uncertain that term1 is firstname, check term2
       
-      if (prob1 >= confthresh) { # if term is 90% prob male or female, it's likely a first name, don't bother genderizing next terms
-        
+      genderedterm2 <- findGivenNames(term2)[1]
+      # genderedterm2 <- findGivenNames(term2,apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
+      genderedterm2 <- genderedterm2[count>100]
+      
+      if (dim(genderedterm2)[[1]]==0) { # term2 isn't in the db (enough times)
+        prob2 <- 0.5 # assuming equally likely either way
+      } else {
+        prob2 <- as.numeric(genderedterm2$probability)
+      }
+      
+      if (prob2 > prob1) { # whichever one is more confident assume is firstname
+        format <- "lastfirst"
+        genderedauthor <- genderedterm2
+      } else if (prob1 > prob2) {
         format <- "firstlast"
         genderedauthor <- genderedterm1
-        
-      } else { # if uncertain that term1 is firstname, check term2
-        
-        genderedterm2 <- findGivenNames(term2)[1]#,apikey="d92354e95b4ff49e7944cd9395e4f908"))
-        genderedterm2 <- genderedterm2[count>100]
-        prob2 <- as.numeric(genderedterm2$probability)
-        
-        if (dim(genderedterm2)[[1]]==0) { # if there are no rows
-          format <- "unknown"
-          genderedauthor <- data.frame(name=NA,gender=NA,probability=NA,count=NA,country_id=NA)
-        } else if ((prob2 > prob1) && (prob2 > probabilitythreshold)) { # need to be confident enough in gender
-          format <- "lastfirst"
-          genderedauthor <- genderedterm2
-        } else if ((prob1 > prob2) && (prob1 > probabilitythreshold)) {
-          format <- "firstlast"
-          genderedauthor <- genderedterm1
-        } else { # if not sufficiently confident in either term, leave author as unknown
-          format <- "unknown"
-          genderedauthor <- data.frame(name=NA,gender=NA,probability=NA,count=NA,country_id=NA)
-        }
-      }
+      } else if (prob1 == prob2) {
+        format <- "unknown"
+        genderedauthor <- data.frame(name=NA,gender=NA,probability=NA,count=NA,country_id=NA)
+      } 
     }
   } else {
     format <- "nofirstname"
