@@ -124,8 +124,16 @@ afn.assessonejournal <- function(journal_data, outfile) {
     firstlast_stats <- data.frame(firstgender, firstgenderprob, lastgender, lastgenderprob)
     article_stats <- cbind(article_stats,firstlast_stats)
     
+    # could also be helpful to add cleaned authors as a variable to see how it was cleaned
+    cleaned_authors <- authors_order[1]
+    if (length(authors_order)>1) {
+      for (j in 2:length(authors_order)) {
+        cleaned_authors <- paste(cleaned_authors,authors_order[j],sep=", ")
+      }
+    }
+    
     # now put everything together
-    journal_article <- cbind(journal_article, article_stats, authors_format)
+    journal_article <- cbind(journal_article, article_stats, authors_format, cleaned_authors)
     newjournaldata <- rbind(newjournaldata, journal_article)
   }
   
@@ -556,43 +564,43 @@ numarticles <- dim(data_biorxiv)[[1]] +
   dim(data_pnas)[[1]] +
   dim(data_science)[[1]]
 
-outname_biorxiv <- "JulieTest/GenderizedByJournal/NewBioRxiv.tsv"
+outname_biorxiv <- "JulieTest/GenderizedByJournalTest/NewBioRxiv.tsv"
 start <- Sys.time()
 newdata_biorxiv <- afn.assessonejournal(data_biorxiv,outname_biorxiv)
 end <- Sys.time()
 print(paste("For bioRxiv",end-start))
 
-outname_cell <- "JulieTest/GenderizedByJournal/NewCell.tsv"
+outname_cell <- "JulieTest/GenderizedByJournalTest/NewCell.tsv"
 start <- Sys.time()
 newdata_cell <- afn.assessonejournal(data_cell,outname_cell)
 end <- Sys.time()
 print(paste("For Cell",end-start))
 
-outname_nature <- "JulieTest/GenderizedByJournal/NewNature.tsv"
+outname_nature <- "JulieTest/GenderizedByJournalTest/NewNature.tsv"
 start <- Sys.time()
 newdata_nature <- afn.assessonejournal(data_nature,outname_nature)
 end <- Sys.time()
 print(paste("For Nature",end-start))
 
-outname_nejm <- "JulieTest/GenderizedByJournal/NewNEJM.tsv"
+outname_nejm <- "JulieTest/GenderizedByJournalTest/NewNEJM.tsv"
 start <- Sys.time()
 newdata_nejm <- afn.assessonejournal(data_nejm,outname_nejm)
 end <- Sys.time()
 print(paste("For NEJM",end-start))
 
-outname_plos <- "JulieTest/GenderizedByJournal/NewPLoSONE.tsv"
+outname_plos <- "JulieTest/GenderizedByJournalTest/NewPLoSONE.tsv"
 start <- Sys.time()
 newdata_plos <- afn.assessonejournal(data_plos,outname_plos)
 end <- Sys.time()
 print(paste("For PLoS ONE",end-start))
 
-outname_pnas <- "JulieTest/GenderizedByJournal/NewPNAS.tsv"
+outname_pnas <- "JulieTest/GenderizedByJournalTest/NewPNAS.tsv"
 start <- Sys.time()
 newdata_pnas <- afn.assessonejournal(data_pnas,outname_pnas)
 end <- Sys.time()
 print(paste("For PNAS",end-start))
 
-outname_science <- "JulieTest/GenderizedByJournal/NewScience.tsv"
+outname_science <- "JulieTest/GenderizedByJournalTest/NewScience.tsv"
 start <- Sys.time()
 newdata_science <- afn.assessonejournal(data_science,outname_science)
 end <- Sys.time()
@@ -602,7 +610,7 @@ print(paste("For Science",end-start))
 ### PRINT INFO ###
 ##################
 
-sink("./JulieTest/JournalLevelCleaning.txt")
+sink("./JulieTest/JournalLevelCleaningTest.txt")
 
 print(paste("There are",dim(alldata_biorxiv)[[1]],"articles in BioRxiv"))
 print(paste("There are",dim(cleandata_biorxiv)[[1]],"articles in BioRxiv after cleaning (i.e. removing articles with no date/no author)"))
