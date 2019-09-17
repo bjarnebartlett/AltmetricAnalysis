@@ -453,7 +453,11 @@ afn.checkduplicateauthors <- function(authorvector) {
           nextauthori <- substr(nextauthor,1,1)
           term2dup_ii <- term2 %in% nextauthori
           if (term2dup_ii) {
-            match2 <- nextauthor[which(term2==nextauthori)] # term2 was spelled out in nextauthor
+            if (length(which(term2==nextauthori))>1) { # this means that both terms start with same letter, and term2 is that letter (e.g. Yang Yul)
+              match2 <- nextauthor[which(term1!=nextauthor)] # makes sure to replace the term that is not term1
+            } else {
+              match2 <- nextauthor[which(term2==nextauthori)] # term2 was spelled out in nextauthor   
+            }
           }
           
           # didn't match because there's no match (if both false, term2dup will still be FALSE; if not, will be TRUE)
@@ -464,6 +468,12 @@ afn.checkduplicateauthors <- function(authorvector) {
         
         if (term1dup && term2dup) { # if both true
           authordup <- TRUE # tells if duplicated later, but the later duplicate will be FALSE bc restofauthors removes previous authors
+          print(paste("i",i,"j",j))
+          print(paste("index",index))
+          print(paste("authorvector[index]",authorvector[index]))
+          print(paste("match1",match1))
+          print(paste("match2",match2))
+          print(paste("paste(match1,match2)",paste(match1,match2)))
           authorvector[index] <- paste(match1,match2)
           break
         } else {
