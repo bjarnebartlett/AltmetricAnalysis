@@ -123,7 +123,8 @@ afn.assessonejournal <- function(journal_data, outfile) {
   
   newjournaldata <- c()
   
-  for (i in 1:dim(journal_data)[[1]]) { # go through all articles
+  # for (i in 1:dim(journal_data)[[1]]) { # go through all articles
+  for (i in 1:1000) {
   # for (i in startarticlenum:endarticlenum) { { # for testing purposes to keep within 1000 api limit
     # pull data for just one article
     
