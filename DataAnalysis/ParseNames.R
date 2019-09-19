@@ -123,8 +123,8 @@ afn.assessonejournal <- function(journal_data, outfile) {
   
   newjournaldata <- c()
   
-  for (i in 1:dim(journal_data)[[1]]) { # go through all articles
-  # for (i in 9001:10000) {
+  # for (i in 1:dim(journal_data)[[1]]) { # go through all articles
+  for (i in 23892:24763) {
   # for (i in startarticlenum:endarticlenum) { { # for testing purposes to keep within 1000 api limit
     # pull data for just one article
     
@@ -163,6 +163,7 @@ afn.assessonejournal <- function(journal_data, outfile) {
     # now put everything together
     journal_article <- cbind(journal_article, article_stats, authors_format, cleaned_authors)
     newjournaldata <- rbind(newjournaldata, journal_article)
+    assign("newjournaldata",newjournaldata,envir = .GlobalEnv)
   }
   
   fwrite(newjournaldata, outfile, sep="\t", append=TRUE)
@@ -200,10 +201,12 @@ afn.getauthors <- function(article) {
         # don't bother genderizing
         if (format == "firstlast") {
           # genderizedname <- findGivenNames(names[[1]][1])[1] # look only at first - if there are composite names (Wei-Ming) only the first will be looked at
-          genderizedname <- findGivenNames(names[[1]][1],apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
+          name1 <- textPrepare(names[[1]][1])
+          genderizedname <- findGivenNames(name1,apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
         } else if (format == "lastfirst") {
           # genderizedname <- findGivenNames(names[[1]][2])[1]
-          genderizedname <- findGivenNames(names[[1]][2],apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
+          name2 <- textPrepare(names[[1]][2])
+          genderizedname <- findGivenNames(name2,apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
         } else {
           genderizedname <- data.frame(name=names[[1]][1], gender=NA, probability=NA, count=NA, country_id=NA)
         }
@@ -259,6 +262,7 @@ afn.cleanauthors <- function(authorsvector) {
     initials <- str_extract(auth,"[A-Z]{2}") # extract more than one consecutive uppercase letter
     spacedinitials <- str_extract(auth,"[A-Z] [A-Z] ")
     spacedinitials2 <- str_extract(auth,"[A-Z] [A-Z]$")
+    dashedinitials <- str_extract(auth,"[A-Z]-[A-Z] ")
     if (!is.na(initials)) {
       initial <- substr(initials,1,1) # take only the first one
       auth <- gsub(initials,initial,auth) # turn FM initials into just F
@@ -272,6 +276,11 @@ afn.cleanauthors <- function(authorsvector) {
     if (!is.na(spacedinitials2)) {
       initial <- substr(spacedinitials2,1,1)
       auth <- gsub(spacedinitials2,initial,auth)
+      authorsvec[i] <- auth
+    }
+    if (!is.na(dashedinitials)) {
+      initial <- substr(dashedinitials,1,1)
+      auth <- gsub(dashedinitials,paste(initial," ",sep=""),auth) # takes just first initial and adds space
       authorsvec[i] <- auth
     }
   }
@@ -367,8 +376,8 @@ afn.testfirstfew <- function(authors, i, confthresh) {
   
   if (length(names[[1]])>1) { # if there is only one term, most likely it is a last name so don't bother genderizing
     
-    term1 <- names[[1]][1]
-    term2 <- names[[1]][2]
+    term1 <- textPrepare(names[[1]][1])
+    term2 <- textPrepare(names[[1]][2])
     
     # genderedterm1 <- findGivenNames(term1)[1]
     genderedterm1 <- findGivenNames(term1,apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
