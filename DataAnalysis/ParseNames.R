@@ -36,28 +36,12 @@ library(stringr)
 
 subsetyear <- 2011
 
-fname_biorxiv <- "./Data091019/bioRxiv.tsv"
-fname_cell <- "./Data091019/Cell.tsv"
-fname_nature <- "./Data091019/Nature.tsv"
-fname_nejm <- "./Data091019/NEJM.tsv"
-fname_plos <- "./Data091019/PLoS ONE.tsv"
-fname_pnas <- "./Data091019/PNAS.tsv"
-fname_science <- "./Data091019/Science.tsv"
-
 probabilitythreshold <- 0.9
 confthreshold <- 0.95
 
 # use only for testing
 # startarticlenum <- 1
 # endarticlenum <- 20
-
-outname_biorxiv <- "DataAnalysis/GenderizedByJournal/NewBioRxiv.tsv"
-outname_cell    <- "DataAnalysis/GenderizedByJournal/NewCell.tsv"
-outname_nature  <- "DataAnalysis/GenderizedByJournal/NewNature.tsv"
-outname_nejm    <- "DataAnalysis/GenderizedByJournal/NewNEJM.tsv"
-outname_plos    <- "DataAnalysis/GenderizedByJournal/NewPLoSONE.tsv"
-outname_pnas    <- "DataAnalysis/GenderizedByJournal/NewPNAS.tsv"
-outname_science <- "DataAnalysis/GenderizedByJournal/NewScience.tsv"
 
 printcleaninginfo <- FALSE
 
@@ -550,86 +534,59 @@ afn.checkduplicateauthors <- function(authorvector) {
 }
 
 
-#################
-### LOAD DATA ###
-#################
+######################
+### RUN BY JOURNAL ###
+######################
 
+fname_biorxiv <- "./Data091019/bioRxiv.tsv"
+outname_biorxiv <- "DataAnalysis/GenderizedByJournal/NewBioRxiv.tsv"
 alldata_biorxiv <- afn.loaddata(fname_biorxiv)
 cleandata_biorxiv <- afn.cleandata(alldata_biorxiv)
 data_biorxiv <- afn.subsetdata(cleandata_biorxiv,subsetyear)
+newdata_biorxiv <- afn.assessonejournal(data_biorxiv,outname_biorxiv)
 
+fname_cell <- "./Data091019/Cell.tsv"
+outname_cell    <- "DataAnalysis/GenderizedByJournal/NewCell.tsv"
 alldata_cell <- afn.loaddata(fname_cell)
 cleandata_cell <- afn.cleandata(alldata_cell)
 data_cell <- afn.subsetdata(cleandata_cell,subsetyear)
+newdata_cell <- afn.assessonejournal(data_cell,outname_cell)
 
+fname_nature <- "./Data091019/Nature.tsv"
+outname_nature  <- "DataAnalysis/GenderizedByJournal/NewNature.tsv"
 alldata_nature <- afn.loaddata(fname_nature)
 cleandata_nature <- afn.cleandata(alldata_nature)
 data_nature <- afn.subsetdata(cleandata_nature,subsetyear)
+newdata_nature <- afn.assessonejournal(data_nature,outname_nature)
 
+fname_nejm <- "./Data091019/NEJM.tsv"
+outname_nejm    <- "DataAnalysis/GenderizedByJournal/NewNEJM.tsv"
 alldata_nejm <- afn.loaddata(fname_nejm)
 cleandata_nejm <- afn.cleandata(alldata_nejm)
 data_nejm <- afn.subsetdata(cleandata_nejm,subsetyear)
+newdata_nejm <- afn.assessonejournal(data_nejm,outname_nejm)
 
+fname_plos <- "./Data091019/PLoS ONE.tsv"
+outname_plos    <- "DataAnalysis/GenderizedByJournal/NewPLoSONE.tsv"
 alldata_plos <- afn.loaddata(fname_plos)
 cleandata_plos <- afn.cleandata(alldata_plos)
 data_plos <- afn.subsetdata(cleandata_plos,subsetyear)
+newdata_plos <- afn.assessonejournal(data_plos,outname_plos)
 
+fname_pnas <- "./Data091019/PNAS.tsv"
+outname_pnas    <- "DataAnalysis/GenderizedByJournal/NewPNAS.tsv"
 alldata_pnas <- afn.loaddata(fname_pnas)
 cleandata_pnas <- afn.cleandata(alldata_pnas)
 data_pnas <- afn.subsetdata(cleandata_pnas,subsetyear)
+newdata_pnas <- afn.assessonejournal(data_pnas,outname_pnas)
 
+fname_science <- "./Data091019/Science.tsv"
+outname_science <- "DataAnalysis/GenderizedByJournal/NewScience.tsv"
 alldata_science <- afn.loaddata(fname_science)
 cleandata_science <- afn.cleandata(alldata_science)
 data_science <- afn.subsetdata(cleandata_science,subsetyear)
-
-numarticles <- dim(data_biorxiv)[[1]] +
-  dim(data_cell)[[1]] +
-  dim(data_nature)[[1]] +
-  dim(data_nejm)[[1]] +
-  dim(data_plos)[[1]] +
-  dim(data_pnas)[[1]] +
-  dim(data_science)[[1]]
-print(paste("The total number of articles is", numarticles))
-
-
-######################
-### GENDERIZE DATA ###
-######################
-
-start <- Sys.time()
-newdata_biorxiv <- afn.assessonejournal(data_biorxiv,outname_biorxiv)
-end <- Sys.time()
-print(paste("For bioRxiv",end-start))
-
-start <- Sys.time()
-newdata_cell <- afn.assessonejournal(data_cell,outname_cell)
-end <- Sys.time()
-print(paste("For Cell",end-start))
-
-start <- Sys.time()
-newdata_nature <- afn.assessonejournal(data_nature,outname_nature)
-end <- Sys.time()
-print(paste("For Nature",end-start))
-
-start <- Sys.time()
-newdata_nejm <- afn.assessonejournal(data_nejm,outname_nejm)
-end <- Sys.time()
-print(paste("For NEJM",end-start))
-
-start <- Sys.time()
-newdata_plos <- afn.assessonejournal(data_plos,outname_plos)
-end <- Sys.time()
-print(paste("For PLoS ONE",end-start))
-
-start <- Sys.time()
-newdata_pnas <- afn.assessonejournal(data_pnas,outname_pnas)
-end <- Sys.time()
-print(paste("For PNAS",end-start))
-
-start <- Sys.time()
 newdata_science <- afn.assessonejournal(data_science,outname_science)
-end <- Sys.time()
-print(paste("For Science",end-start))
+
 
 ##################
 ### PRINT INFO ###
