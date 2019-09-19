@@ -190,8 +190,8 @@ afn.getauthors <- function(article) {
     for (i in 4:numauthors) {
       
       author <- nondupauthors[i]
-      author <- gsub("^[A-Z] ","",author) # if there are any legacy initials from afn.checkduplicateauthors
-      author <- gsub(" [A-Z]$","",author) # get rid of them
+      author <- gsub("^[A-z] ","",author) # if there are any legacy initials from afn.checkduplicateauthors
+      author <- gsub(" [A-z]$","",author) # get rid of them
       
       names <- strsplit(author," ")
       

@@ -124,7 +124,7 @@ afn.assessonejournal <- function(journal_data, outfile) {
   newjournaldata <- c()
   
   # for (i in 1:dim(journal_data)[[1]]) { # go through all articles
-  for (i in 23892:24763) {
+  for (i in 24763:dim(journal_data)[[1]]) {
   # for (i in startarticlenum:endarticlenum) { { # for testing purposes to keep within 1000 api limit
     # pull data for just one article
     
@@ -191,8 +191,8 @@ afn.getauthors <- function(article) {
     for (i in 4:numauthors) {
       
       author <- nondupauthors[i]
-      author <- gsub("^[A-Z] ","",author) # if there are any legacy initials from afn.checkduplicateauthors
-      author <- gsub(" [A-Z]$","",author) # get rid of them
+      author <- gsub("^[A-z] ","",author) # if there are any legacy initials from afn.checkduplicateauthors
+      author <- gsub(" [A-z]$","",author) # get rid of them
       
       names <- strsplit(author," ")
       
