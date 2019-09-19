@@ -108,7 +108,7 @@ afn.assessonejournal <- function(journal_data, outfile) {
   newjournaldata <- c()
   
   # for (i in 1:dim(journal_data)[[1]]) { # go through all articles
-  for (i in 24763:dim(journal_data)[[1]]) {
+  for (i in 3001:3885) {
   # for (i in startarticlenum:endarticlenum) { { # for testing purposes to keep within 1000 api limit
     # pull data for just one article
     
@@ -237,8 +237,8 @@ afn.cleanauthors <- function(authorsvector) {
   authorsvec <- gsub("Van de ","VanDe",authorsvec)
   authorsvec <- gsub("^de ","de",authorsvec)
   authorsvec <- gsub(" de "," de",authorsvec)
-  authorsvec <- gsub("Jr","",authorsvec)
-  authorsvec <- gsub("Sr","",authorsvec)
+  authorsvec <- gsub("Jr.","",authorsvec)
+  authorsvec <- gsub("Sr.","",authorsvec)
   
   
   for (i in 1:length(authorsvec)) {
@@ -247,6 +247,7 @@ afn.cleanauthors <- function(authorsvector) {
     spacedinitials <- str_extract(auth,"[A-Z] [A-Z] ")
     spacedinitials2 <- str_extract(auth,"[A-Z] [A-Z]$")
     dashedinitials <- str_extract(auth,"[A-Z]-[A-Z] ")
+    dashedinitials2 <- str_extract(auth,"[A-Z]-[A-Z]$")
     if (!is.na(initials)) {
       initial <- substr(initials,1,1) # take only the first one
       auth <- gsub(initials,initial,auth) # turn FM initials into just F
@@ -267,6 +268,11 @@ afn.cleanauthors <- function(authorsvector) {
       auth <- gsub(dashedinitials,paste(initial," ",sep=""),auth) # takes just first initial and adds space
       authorsvec[i] <- auth
     }
+    if (!is.na(dashedinitials2)) {
+      initial <- substr(dashedinitials2,1,1)
+      auth <- gsub(dashedinitials2,paste(initial," ",sep=""),auth) # takes just first initial and adds space
+      authorsvec[i] <- auth
+    }
   }
   authorsvec <- gsub(" [A-z] "," ",authorsvec) # get rid of any lone initials (most likely middle initial)
   
@@ -274,6 +280,7 @@ afn.cleanauthors <- function(authorsvector) {
   # authorsvec <- gsub(" [A-Z]$","",authorsvec) # get rid of initials at end
 
   authorsvec <- trimws(authorsvec)
+  authorsvec <- authorsvec[which(authorsvec!="")]
   
   numauthors <- length(authorsvec)
   
