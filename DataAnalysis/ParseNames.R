@@ -108,7 +108,7 @@ afn.assessonejournal <- function(journal_data, outfile) {
   newjournaldata <- c()
   
   # for (i in 1:dim(journal_data)[[1]]) { # go through all articles
-  for (i in 3001:3885) {
+  for (i in 30001:30000) {
   # for (i in startarticlenum:endarticlenum) { { # for testing purposes to keep within 1000 api limit
     # pull data for just one article
     
@@ -186,11 +186,21 @@ afn.getauthors <- function(article) {
         if (format == "firstlast") {
           # genderizedname <- findGivenNames(names[[1]][1])[1] # look only at first - if there are composite names (Wei-Ming) only the first will be looked at
           name1 <- textPrepare(names[[1]][1])
-          genderizedname <- findGivenNames(name1,apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
+          if (length(name1)>0) {
+            genderizedname <- findGivenNames(name1,apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
+          } else {
+            genderizedname <- data.frame(name=NA,gender=NA,probability=NA,count=NA,country_id=NA)
+          }
+          
         } else if (format == "lastfirst") {
           # genderizedname <- findGivenNames(names[[1]][2])[1]
           name2 <- textPrepare(names[[1]][2])
-          genderizedname <- findGivenNames(name2,apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
+          if (length(name2)>0) {
+            genderizedname <- findGivenNames(name2,apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
+          } else {
+            genderizedname <- data.frame(name=NA,gender=NA,probability=NA,count=NA,country_id=NA)
+          }
+          
         } else {
           genderizedname <- data.frame(name=names[[1]][1], gender=NA, probability=NA, count=NA, country_id=NA)
         }
@@ -371,13 +381,19 @@ afn.testfirstfew <- function(authors, i, confthresh) {
     term2 <- textPrepare(names[[1]][2])
     
     # genderedterm1 <- findGivenNames(term1)[1]
-    genderedterm1 <- findGivenNames(term1,apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
-    genderedterm1 <- genderedterm1[count>100] # rules out terms that are probably not first names?
-    
-    if (dim(genderedterm1)[[1]]==0) { # term1 isn't in the db (enough times)
-      prob1 <- 0.5 # it could go either way
+    if (length(term1)>0) {
+      genderedterm1 <- findGivenNames(term1,apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
+      genderedterm1 <- genderedterm1[count>100] # rules out terms that are probably not first names?
+      
+      if (dim(genderedterm1)[[1]]==0) { # term1 isn't in the db (enough times)
+        prob1 <- 0.5 # it could go either way
+      } else {
+        prob1 <- as.numeric(genderedterm1$probability)
+      }
+      
     } else {
-      prob1 <- as.numeric(genderedterm1$probability)
+      genderedterm1 <- data.frame(name=NA,gender=NA,probability=NA,count=NA,country_id=NA)
+      prob1 <- 0.5
     }
     
     if (prob1 >= confthresh) { # if term is 90% prob male or female, it's likely a first name, don't bother genderizing next terms
@@ -385,14 +401,20 @@ afn.testfirstfew <- function(authors, i, confthresh) {
       genderedauthor <- genderedterm1
     } else { # if uncertain that term1 is firstname, check term2
       
-      # genderedterm2 <- findGivenNames(term2)[1]
-      genderedterm2 <- findGivenNames(term2,apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
-      genderedterm2 <- genderedterm2[count>100]
-      
-      if (dim(genderedterm2)[[1]]==0) { # term2 isn't in the db (enough times)
-        prob2 <- 0.5 # assuming equally likely either way
+      if (length(term2)>0) {
+        # genderedterm2 <- findGivenNames(term2)[1]
+        genderedterm2 <- findGivenNames(term2,apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
+        genderedterm2 <- genderedterm2[count>100]
+        
+        if (dim(genderedterm2)[[1]]==0) { # term2 isn't in the db (enough times)
+          prob2 <- 0.5 # assuming equally likely either way
+        } else {
+          prob2 <- as.numeric(genderedterm2$probability)
+        }
+        
       } else {
-        prob2 <- as.numeric(genderedterm2$probability)
+        genderedterm2 <- data.frame(name=NA,gender=NA,probability=NA,count=NA,country_id=NA)
+        prob2 <- 0.5
       }
       
       if (prob2 > prob1) { # whichever one is more confident assume is firstname
