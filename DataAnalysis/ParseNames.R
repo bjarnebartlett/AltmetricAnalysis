@@ -108,7 +108,7 @@ afn.assessonejournal <- function(journal_data, outfile) {
   newjournaldata <- c()
   
   # for (i in 1:dim(journal_data)[[1]]) { # go through all articles
-  for (i in 30001:30000) {
+  for (i in 1:dim(journal_data)[[1]]) {
   # for (i in startarticlenum:endarticlenum) { { # for testing purposes to keep within 1000 api limit
     # pull data for just one article
     
@@ -187,7 +187,7 @@ afn.getauthors <- function(article) {
           # genderizedname <- findGivenNames(names[[1]][1])[1] # look only at first - if there are composite names (Wei-Ming) only the first will be looked at
           name1 <- textPrepare(names[[1]][1])
           if (length(name1)>0) {
-            genderizedname <- findGivenNames(name1,apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
+            genderizedname <- findGivenNames(name1,apikey="3e027c33d2f336c05268a9a52aae0a62")[1]
           } else {
             genderizedname <- data.frame(name=NA,gender=NA,probability=NA,count=NA,country_id=NA)
           }
@@ -196,7 +196,7 @@ afn.getauthors <- function(article) {
           # genderizedname <- findGivenNames(names[[1]][2])[1]
           name2 <- textPrepare(names[[1]][2])
           if (length(name2)>0) {
-            genderizedname <- findGivenNames(name2,apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
+            genderizedname <- findGivenNames(name2,apikey="3e027c33d2f336c05268a9a52aae0a62")[1]
           } else {
             genderizedname <- data.frame(name=NA,gender=NA,probability=NA,count=NA,country_id=NA)
           }
@@ -382,7 +382,7 @@ afn.testfirstfew <- function(authors, i, confthresh) {
     
     # genderedterm1 <- findGivenNames(term1)[1]
     if (length(term1)>0) {
-      genderedterm1 <- findGivenNames(term1,apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
+      genderedterm1 <- findGivenNames(term1,apikey="3e027c33d2f336c05268a9a52aae0a62")[1]
       genderedterm1 <- genderedterm1[count>100] # rules out terms that are probably not first names?
       
       if (dim(genderedterm1)[[1]]==0) { # term1 isn't in the db (enough times)
@@ -403,7 +403,7 @@ afn.testfirstfew <- function(authors, i, confthresh) {
       
       if (length(term2)>0) {
         # genderedterm2 <- findGivenNames(term2)[1]
-        genderedterm2 <- findGivenNames(term2,apikey="d92354e95b4ff49e7944cd9395e4f908")[1]
+        genderedterm2 <- findGivenNames(term2,apikey="3e027c33d2f336c05268a9a52aae0a62")[1]
         genderedterm2 <- genderedterm2[count>100]
         
         if (dim(genderedterm2)[[1]]==0) { # term2 isn't in the db (enough times)
