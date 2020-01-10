@@ -27,12 +27,18 @@ setwd("/Users/juliefortin/Documents/UBC/Projects/Altmetrics/AltmetricAnalysis/")
 # install.packages("ggplot2")
 # install.packages("tidyverse")
 # install.packages("visreg")
+# install.packages("multcomp")
+# install.packages("ggplot2")
+# install.packages("ggpubr")
 library(data.table)
 library(lme4)
 library(sjPlot)
 library(ggplot2)
 library(tidyverse)
 library(visreg)
+library(multcomp)
+library(ggplot2)
+library(ggpubr)
 
 
 #################
@@ -98,6 +104,8 @@ barplot(table(mergeddata$type), col="#cbd5e8", las=2, main="Type of article")
 # Journal
 pie(table(mergeddata$journal), labels=c("bioRxiv","Cell","Nature","NEJM","PLoS ONE","PNAS","Science"), main="Journal")
 
+# Collinearity
+plot(mergeddata$numauthors, mergeddata$propfemales)
 
 #################
 ### DATA PREP ###
@@ -673,10 +681,730 @@ faraway::vif(m_logist7_contvars)
 # values are close to 1, which means the predictors are not correlated
 
 
+################
+### POST HOC ###
+################
+
+# Final models are:
+
+# m_linear5: 
+# lm of articles from all journals except bioRxiv,
+# for all years, 
+# with year as factor
+# with gender*journal*year 
+# and propfemales, numauthors and month as additional factors
+
+# m_linear8:
+# lm of articles from bioRxiv,
+# for years 2015-2018
+# with year as factor
+# with gender*year
+# and propfemales, numauthors and month as additional factors
+
+
+##### Are all factors important #####
+
+# according to Tanadini's thesis p. 39 (https://ora.ox.ac.uk/objects/uuid:73c52d36-2e8a-4e04-92e0-a67ed93d7090/download_file?file_format=pdf&safe_filename=Thesis_Tanadini_2016.pdf&type_of_work=Thesis)
+# we want to confirm that an independent variable of interest actually has an effect
+# can do this by creating a version of the model without the variable and doing an anova
+
+summary(m_linear5)
+# mult R2: 0.2611
+# adjusted R2: 0.2589
+
+m_linear5b <- lm(logscore ~ pubyear*gender*journal + numauthors + pubmonth,
+                data=lineardata5)
+anova(m_linear5, m_linear5b)
+# via anova, found that propfemales was not significant but numauthors and pubmonth was
+saveRDS(m_linear5b,"./DataAnalysis/AltmetricScoreModeling/m_linear5b.RDS")
+m_linear5b <- readRDS("./DataAnalysis/AltmetricScoreModeling/m_linear5b.RDS")
+summary(m_linear5b)
+# mult R2: 0.2611
+# adj R2: 0.2589
+
+summary(m_linear8)
+# mult R2: 0.05691
+# adj R2: 0.05587
+# let's see if removing additional factors (just keeping interaction) makes a dif
+m_linear8b <- lm(logscore ~ pubyear*gender + numauthors + pubmonth,
+                data=lineardata8)
+anova(m_linear8, m_linear8b)
+# via anova, found all independent vars were significant - keep the main model
+saveRDS(m_linear8b,"./DataAnalysis/AltmetricScoreModeling/m_linear8b.RDS")
+m_linear8b <- readRDS("./DataAnalysis/AltmetricScoreModeling/m_linear8b.RDS")
+summary(m_linear8b)
+# mult R2: 0.05627
+# adj R2: 0.05526
+
+##### Sensitivity to unknown authors #####
+
+# we have a pretty large number of unknown authors
+# that are coded as f or l for first author unknown/last author unknown
+# let's see if the models change if we didn't have unknowns
+
+# 1. Assume all unknown authors are evenly split between male and female
+lineardata5c <- lineardata5
+lineardata5c[gender=="f"]$gender <- sample(c("ff","fm"),length(lineardata5c[gender=="f"]$gender), replace=TRUE) # for unknown authors, randomly assign ff or fm
+lineardata5c[gender=="l"]$gender <- sample(c("lf","lm"),length(lineardata5c[gender=="l"]$gender), replace=TRUE) # for unknown authors, randomly assign ff or fm
+lineardata5c$gender <- factor(lineardata5c$gender)
+levels(lineardata5c$gender)
+m_linear5c <- lm(logscore ~ pubyear*gender*journal + numauthors + pubmonth,
+                data=lineardata5c)
+saveRDS(m_linear5c,"./DataAnalysis/AltmetricScoreModeling/m_linear5c.RDS")
+m_linear5c <- readRDS("./DataAnalysis/AltmetricScoreModeling/m_linear5c.RDS")
+summary(m_linear5c)
+# R2 0.2488 0.2573
+
+lineardata8c <- lineardata8
+lineardata8c[gender=="f"]$gender <- sample(c("ff","fm"),length(lineardata8c[gender=="f"]$gender), replace=TRUE) # for unknown authors, randomly assign ff or fm
+lineardata8c[gender=="l"]$gender <- sample(c("lf","lm"),length(lineardata8c[gender=="l"]$gender), replace=TRUE) # for unknown authors, randomly assign ff or fm
+lineardata8c$gender <- factor(lineardata8c$gender)
+levels(lineardata8c$gender)
+m_linear8c <- lm(logscore ~ pubyear*gender + numauthors + propfemales + pubmonth,
+                 data=lineardata8c)
+saveRDS(m_linear8c,"./DataAnalysis/AltmetricScoreModeling/m_linear8c.RDS")
+m_linear8c <- readRDS("./DataAnalysis/AltmetricScoreModeling/m_linear8c.RDS")
+summary(m_linear8c)
+# 0.0563 0.05549
+
+# 2. Assume all unknown authors are split according to the proportions observed in the known authors
+lineardata5d <- lineardata5
+probff <- count(lineardata5[gender=="ff"])/count(lineardata5[gender=="ff"|gender=="fm"])
+probfm <- 1-probff
+problf <- count(lineardata5[gender=="lf"])/count(lineardata5[gender=="lf"|gender=="lm"])
+problm <- 1-problf
+lineardata5d[gender=="f"]$gender <- sample(c("ff","fm"),length(lineardata5[gender=="f"]$gender),prob=c(probff,probfm), replace=TRUE)
+lineardata5d[gender=="l"]$gender <- sample(c("lf","lm"),length(lineardata5[gender=="l"]$gender),prob=c(problf,problm), replace=TRUE)
+lineardata5d$gender <- factor(lineardata5d$gender)
+table(lineardata5d$gender)
+m_linear5d <- lm(logscore ~ pubyear*gender*journal + numauthors + pubmonth,
+                 data=lineardata5d)
+saveRDS(m_linear5d,"./DataAnalysis/AltmetricScoreModeling/m_linear5d.RDS")
+m_linear5d <- readRDS("./DataAnalysis/AltmetricScoreModeling/m_linear5d.RDS")
+summary(m_linear5d)
+# R2 0.2589 0.2574
+
+lineardata8d <- lineardata8
+probff <- count(lineardata8[gender=="ff"])/count(lineardata8[gender=="ff"|gender=="fm"])
+probfm <- 1-probff
+problf <- count(lineardata8[gender=="lf"])/count(lineardata8[gender=="lf"|gender=="lm"])
+problm <- 1-problf
+lineardata8d[gender=="f"]$gender <- sample(c("ff","fm"),length(lineardata8[gender=="f"]$gender),prob=c(probff,probfm), replace=TRUE)
+lineardata8d[gender=="l"]$gender <- sample(c("lf","lm"),length(lineardata8[gender=="l"]$gender),prob=c(problf,problm), replace=TRUE)
+lineardata8d$gender <- factor(lineardata8d$gender)
+table(lineardata8d$gender)
+m_linear8d <- lm(logscore ~ pubyear*gender + numauthors + propfemales + pubmonth,
+                 data=lineardata8d)
+saveRDS(m_linear8d,"./DataAnalysis/AltmetricScoreModeling/m_linear8d.RDS")
+m_linear8d <- readRDS("./DataAnalysis/AltmetricScoreModeling/m_linear8d.RDS")
+summary(m_linear8d)
+# R2 0.05632 0.05551
+
+# How do I compare the models? Goal is to see whether missing data has a big impact on the modeled relationships
+# Maybe just look at R2?
+# 5b: 0.2611 0.2589
+# 5c: 0.2488 0.2573
+# 5d: 0.2589 0.2574
+# 5b might be best?
+# Looking at R2 will tell us about the fit, but not how different the fitted models are?
+# Maybe look at AIC?
+# AIC needs to be done on models run on the same data
+# Maybe look at model coefs?
+head(data.frame(coef(m_linear5b)))
+head(data.frame(coef(m_linear5c)))
+head(data.frame(coef(m_linear5d)))
+
+head(data.frame(coef(m_linear8b)))
+head(data.frame(coef(m_linear8c)))
+head(data.frame(coef(m_linear8d)))
+
+
+##### Is there a difference between male and female authors #####
+
+# Following post hoc assessment p.40 Tanadini's thesis
+lineardata5d <- lineardata5
+lineardata5d$puby.gend.jour <- interaction(lineardata5d$pubyear, lineardata5d$gender, lineardata5d$journal)
+m_linear5d2 <- lm(logscore ~ puby.gend.jour + numauthors + pubmonth, data=lineardata5d)
+coef(m_linear5d2)
+
+ind.ff <- grep(pattern = "ff", x = names(coef(m_linear5d2)))
+ind.fm <- grep(pattern = "fm", x = names(coef(m_linear5d2)))
+vec_f <- rep(0, times = length(coef(m_linear5d2)))
+vec_f[ind.ff] <- 1/length(ind.ff)
+vec_f[ind.fm] <- -1/length(ind.fm)
+ind.lf <- grep(pattern = "lf", x = names(coef(m_linear5d2)))
+ind.lm <- grep(pattern = "lm", x = names(coef(m_linear5d2)))
+vec_l <- rep(0, times = length(coef(m_linear5d2)))
+vec_l[ind.lf] <- 1/length(ind.lf)
+vec_l[ind.lm] <- -1/length(ind.lm)
+M5 <- rbind("first female vs first male" = vec_f,
+            "last female vs last male" = vec_l)
+colnames(M5) <- names(coef(m_linear5d2))
+
+posthoc5 <- glht(m_linear5d2, linfct = M5)
+summary(posthoc5)
+
+# for biorxiv
+lineardata8d <- lineardata8
+lineardata8d$puby.gend <- interaction(lineardata8d$pubyear, lineardata8d$gender)
+m_linear8d2 <- lm(logscore ~ puby.gend + numauthors + propfemales + pubmonth, data=lineardata8d)
+coef(m_linear8d2)
+
+ind.ff <- grep(pattern = "ff", x = names(coef(m_linear8d2)))
+ind.fm <- grep(pattern = "fm", x = names(coef(m_linear8d2)))
+vec_f <- rep(0, times = length(coef(m_linear8d2)))
+vec_f[ind.ff] <- 1/length(ind.ff)
+vec_f[ind.fm] <- -1/length(ind.fm)
+ind.lf <- grep(pattern = "lf", x = names(coef(m_linear8d2)))
+ind.lm <- grep(pattern = "lm", x = names(coef(m_linear8d2)))
+vec_l <- rep(0, times = length(coef(m_linear8d2)))
+vec_l[ind.lf] <- 1/length(ind.lf)
+vec_l[ind.lm] <- -1/length(ind.lm)
+M8 <- rbind("first female vs first male" = vec_f,
+            "last female vs last male" = vec_l)
+colnames(M8) <- names(coef(m_linear8d2))
+
+posthoc8 <- glht(m_linear8d2, linfct = M8)
+summary(posthoc8)
+
+##### Is there a difference between male and female authors, within journal, between 2011 and 2018? ####
+
+fffmCell2018 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.ff.Cell", nomatch = 0) -
+                 match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.fm.Cell", nomatch = 0))
+fffmCell2011 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.ff.Cell", nomatch = 0) -
+                 match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.fm.Cell", nomatch = 0))
+lflmCell2018 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.lf.Cell", nomatch = 0) -
+                 match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.lm.Cell", nomatch = 0))
+lflmCell2011 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.lf.Cell", nomatch = 0) -
+                 match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.lm.Cell", nomatch = 0))
+
+fffmNat2018 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.ff.Nature", nomatch = 0) -
+                match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.fm.Nature", nomatch = 0))
+fffmNat2011 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.ff.Nature", nomatch = 0) -
+                match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.fm.Nature", nomatch = 0))
+lflmNat2018 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.lf.Nature", nomatch = 0) -
+                match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.lm.Nature", nomatch = 0))
+lflmNat2011 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.lf.Nature", nomatch = 0) -
+                match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.lm.Nature", nomatch = 0))
+
+fffmNEJM2018 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.ff.NEJM", nomatch = 0) -
+                 match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.fm.NEJM", nomatch = 0))
+fffmNEJM2011 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.ff.NEJM", nomatch = 0) -
+                 match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.fm.NEJM", nomatch = 0))
+lflmNEJM2018 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.lf.NEJM", nomatch = 0) -
+                 match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.lm.NEJM", nomatch = 0))
+lflmNEJM2011 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.lf.NEJM", nomatch = 0) -
+                 match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.lm.NEJM", nomatch = 0))
+
+fffmPLOS2018 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.ff.PLoS ONE", nomatch = 0) -
+                 match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.fm.PLoS ONE", nomatch = 0))
+fffmPLOS2011 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.ff.PLoS ONE", nomatch = 0) -
+                 match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.fm.PLoS ONE", nomatch = 0))
+lflmPLOS2018 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.lf.PLoS ONE", nomatch = 0) -
+                 match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.lm.PLoS ONE", nomatch = 0))
+lflmPLOS2011 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.lf.PLoS ONE", nomatch = 0) -
+                 match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.lm.PLoS ONE", nomatch = 0))
+
+fffmPNAS2018 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.ff.PNAS", nomatch = 0) -
+                 match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.fm.PNAS", nomatch = 0))
+fffmPNAS2011 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.ff.PNAS", nomatch = 0) -
+                 match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.fm.PNAS", nomatch = 0))
+lflmPNAS2018 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.lf.PNAS", nomatch = 0) -
+                 match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.lm.PNAS", nomatch = 0))
+lflmPNAS2011 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.lf.PNAS", nomatch = 0) -
+                 match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.lm.PNAS", nomatch = 0))
+
+fffmSci2018 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.ff.Science", nomatch = 0) -
+                    match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.fm.Science", nomatch = 0))
+fffmSci2011 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.ff.Science", nomatch = 0) -
+                    match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.fm.Science", nomatch = 0))
+lflmSci2018 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.lf.Science", nomatch = 0) -
+                    match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.lm.Science", nomatch = 0))
+lflmSci2011 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.lf.Science", nomatch = 0) -
+                    match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.lm.Science", nomatch = 0))
+
+M <- rbind(fffmCell2018, fffmCell2011, lflmCell2018, lflmCell2011,
+           fffmNat2018,  fffmNat2011,  lflmNat2018,  lflmNat2011,
+           fffmNEJM2018, fffmNEJM2011, lflmNEJM2018, lflmNEJM2011,
+           fffmPLOS2018, fffmPLOS2011, lflmPLOS2018, lflmPLOS2011,
+           fffmPNAS2018, fffmPNAS2011, lflmPNAS2018, lflmPNAS2011,
+           fffmSci2018,  fffmSci2011,  lflmSci2018,  lflmSci2011)
+colnames(M) <- names(coef(m_linear5d2))
+
+posthocdif <- glht(m_linear5d2, linfct = M)
+summary(posthocdif)
+plot(posthocdif)
+
+# bioRxiv
+fffmbio2018 <- (match(x = names(coef(m_linear8d2)), table = "puby.gend2018.ff", nomatch = 0) -
+                match(x = names(coef(m_linear8d2)), table = "puby.gend2018.fm", nomatch = 0))
+fffmbio2015 <- (match(x = names(coef(m_linear8d2)), table = "puby.gend2015.ff", nomatch = 0) -
+                match(x = names(coef(m_linear8d2)), table = "puby.gend2015.fm", nomatch = 0))
+lflmbio2018 <- (match(x = names(coef(m_linear8d2)), table = "puby.gend2018.lf", nomatch = 0) -
+                match(x = names(coef(m_linear8d2)), table = "puby.gend2018.lm", nomatch = 0))
+lflmbio2015 <- (match(x = names(coef(m_linear8d2)), table = "puby.gend2015.lf", nomatch = 0) -
+                match(x = names(coef(m_linear8d2)), table = "puby.gend2015.lm", nomatch = 0))
+
+Mb <- rbind(fffmbio2018, fffmbio2015, lflmbio2018, lflmbio2015)
+colnames(Mb) <- names(coef(m_linear8d2))
+
+posthocdifb <- glht(m_linear8d2, linfct = Mb)
+summary(posthocdifb)
+plot(posthocdifb)
+
+# prep for plot
+d <- data.frame(confint(posthocdif)$confint)
+db <- data.frame(confint(posthocdifb)$confint)
+d <- rbind(db,d)
+head(d)
+d$year <- c(2018,2015,2018,2015,rep(c(2018,2011),times=12))
+d$fl <- rep(c("First author","First author","Last author","Last author"), times=7)
+d$journal <- as.factor(c(rep("bioRxiv",4),rep("Cell",4),rep("Nature",4),rep("NEJM",4),rep("PLOS",4),rep("PNAS",4),rep("Science",4)))
+tail(d)
+
+##### Is there a difference between genders within journals (regardless of years) #####
+
+lineardata5e <- lineardata5
+lineardata5e$gend.jour <- interaction(lineardata5e$gender, lineardata5e$journal)
+m_linear5e <- lm(logscore ~ pubyear*gend.jour + numauthors + pubmonth, data=lineardata5e)
+coef(m_linear5e)
+
+cell.ff <- grep(pattern = "ff.Cell", x = names(coef(m_linear5e)))
+cell.fm <- grep(pattern = "fm.Cell", x = names(coef(m_linear5e)))
+vec_cellf <- rep(0, times = length(coef(m_linear5e)))
+vec_cellf[cell.ff] <- 1/length(cell.ff)
+vec_cellf[cell.fm] <- -1/length(cell.fm)
+cell.lf <- grep(pattern = "lf.Cell", x = names(coef(m_linear5e)))
+cell.lm <- grep(pattern = "lm.Cell", x = names(coef(m_linear5e)))
+vec_celll <- rep(0, times = length(coef(m_linear5e)))
+vec_celll[cell.lf] <- 1/length(cell.lf)
+vec_celll[cell.lm] <- -1/length(cell.lm)
+Mcell <- rbind("first female vs first male" = vec_cellf,
+            "last female vs last male" = vec_celll)
+colnames(Mcell) <- names(coef(m_linear5e))
+
+posthoccell <- glht(m_linear5e, linfct = Mcell)
+summary(posthoccell)
+
+nat.ff <- grep(pattern = "ff.Nature", x = names(coef(m_linear5e)))
+nat.fm <- grep(pattern = "fm.Nature", x = names(coef(m_linear5e)))
+vec_natf <- rep(0, times = length(coef(m_linear5e)))
+vec_natf[nat.ff] <- 1/length(nat.ff)
+vec_natf[nat.fm] <- -1/length(nat.fm)
+nat.lf <- grep(pattern = "lf.Nature", x = names(coef(m_linear5e)))
+nat.lm <- grep(pattern = "lm.Nature", x = names(coef(m_linear5e)))
+vec_natl <- rep(0, times = length(coef(m_linear5e)))
+vec_natl[nat.lf] <- 1/length(nat.lf)
+vec_natl[nat.lm] <- -1/length(nat.lm)
+Mnat <- rbind("first female vs first male" = vec_natf,
+               "last female vs last male" = vec_natl)
+colnames(Mnat) <- names(coef(m_linear5e))
+
+posthocnat <- glht(m_linear5e, linfct = Mnat)
+summary(posthocnat)
+plot(posthocnat)
+
+nejm.ff <- grep(pattern = "ff.NEJM", x = names(coef(m_linear5e)))
+nejm.fm <- grep(pattern = "fm.NEJM", x = names(coef(m_linear5e)))
+vec_nejmf <- rep(0, times = length(coef(m_linear5e)))
+vec_nejmf[nejm.ff] <- 1/length(nejm.ff)
+vec_nejmf[nejm.fm] <- -1/length(nejm.fm)
+nejm.lf <- grep(pattern = "lf.NEJM", x = names(coef(m_linear5e)))
+nejm.lm <- grep(pattern = "lm.NEJM", x = names(coef(m_linear5e)))
+vec_nejml <- rep(0, times = length(coef(m_linear5e)))
+vec_nejml[nejm.lf] <- 1/length(nejm.lf)
+vec_nejml[nejm.lm] <- -1/length(nejm.lm)
+Mnejm <- rbind("first female vs first male" = vec_nejmf,
+              "last female vs last male" = vec_nejml)
+colnames(Mnejm) <- names(coef(m_linear5e))
+
+posthocnejm <- glht(m_linear5e, linfct = Mnejm)
+summary(posthocnejm)
+
+plos.ff <- grep(pattern = "ff.PLoS ONE", x = names(coef(m_linear5e)))
+plos.fm <- grep(pattern = "fm.PLoS ONE", x = names(coef(m_linear5e)))
+vec_plosf <- rep(0, times = length(coef(m_linear5e)))
+vec_plosf[plos.ff] <- 1/length(plos.ff)
+vec_plosf[plos.fm] <- -1/length(plos.fm)
+plos.lf <- grep(pattern = "lf.PLoS ONE", x = names(coef(m_linear5e)))
+plos.lm <- grep(pattern = "lm.PLoS ONE", x = names(coef(m_linear5e)))
+vec_plosl <- rep(0, times = length(coef(m_linear5e)))
+vec_plosl[plos.lf] <- 1/length(plos.lf)
+vec_plosl[plos.lm] <- -1/length(plos.lm)
+Mplos <- rbind("first female vs first male" = vec_plosf,
+              "last female vs last male" = vec_plosl)
+colnames(Mplos) <- names(coef(m_linear5e))
+
+posthocplos <- glht(m_linear5e, linfct = Mplos)
+summary(posthocplos)
+
+pnas.ff <- grep(pattern = "ff.PNAS", x = names(coef(m_linear5e)))
+pnas.fm <- grep(pattern = "fm.PNAS", x = names(coef(m_linear5e)))
+vec_pnasf <- rep(0, times = length(coef(m_linear5e)))
+vec_pnasf[pnas.ff] <- 1/length(pnas.ff)
+vec_pnasf[pnas.fm] <- -1/length(pnas.fm)
+pnas.lf <- grep(pattern = "lf.PNAS", x = names(coef(m_linear5e)))
+pnas.lm <- grep(pattern = "lm.PNAS", x = names(coef(m_linear5e)))
+vec_pnasl <- rep(0, times = length(coef(m_linear5e)))
+vec_pnasl[pnas.lf] <- 1/length(pnas.lf)
+vec_pnasl[pnas.lm] <- -1/length(pnas.lm)
+Mpnas <- rbind("first female vs first male" = vec_pnasf,
+              "last female vs last male" = vec_pnasl)
+colnames(Mpnas) <- names(coef(m_linear5e))
+
+posthocpnas <- glht(m_linear5e, linfct = Mpnas)
+summary(posthocpnas)
+
+sci.ff <- grep(pattern = "ff.Science", x = names(coef(m_linear5e)))
+sci.fm <- grep(pattern = "fm.Science", x = names(coef(m_linear5e)))
+vec_scif <- rep(0, times = length(coef(m_linear5e)))
+vec_scif[sci.ff] <- 1/length(sci.ff)
+vec_scif[sci.fm] <- -1/length(sci.fm)
+sci.lf <- grep(pattern = "lf.Science", x = names(coef(m_linear5e)))
+sci.lm <- grep(pattern = "lm.Science", x = names(coef(m_linear5e)))
+vec_scil <- rep(0, times = length(coef(m_linear5e)))
+vec_scil[sci.lf] <- 1/length(sci.lf)
+vec_scil[sci.lm] <- -1/length(sci.lm)
+Msci <- rbind("first female vs first male" = vec_scif,
+              "last female vs last male" = vec_scil)
+colnames(Msci) <- names(coef(m_linear5e))
+
+posthocsci <- glht(m_linear5e, linfct = Msci)
+summary(posthocsci)
+
+
+##### Posthoc for logistic #####
+
+logisticdata4b <- logisticdata4
+logisticdata4b$puby.gend.jour <- interaction(logisticdata4b$pubyear, logisticdata4b$gender, logisticdata4b$journal)
+m_logist4b <- glm(score ~ puby.gend.jour + numauthors + propfemales + pubmonth, data=logisticdata4b, family=binomial)
+saveRDS(m_logist4b,"./DataAnalysis/AltmetricScoreModeling/m_logist4b.RDS")
+# m_logist4b <- readRDS("./DataAnalysis/AltmetricScoreModeling/m_logist4b.RDS")
+coef(m_logist4b)
+
+ind.ff <- grep(pattern = "ff", x = names(coef(m_logist4b)))
+ind.fm <- grep(pattern = "fm", x = names(coef(m_logist4b)))
+vec_f <- rep(0, times = length(coef(m_logist4b)))
+vec_f[ind.ff] <- 1/length(ind.ff)
+vec_f[ind.fm] <- -1/length(ind.fm)
+ind.lf <- grep(pattern = "lf", x = names(coef(m_logist4b)))
+ind.lm <- grep(pattern = "lm", x = names(coef(m_logist4b)))
+vec_l <- rep(0, times = length(coef(m_logist4b)))
+vec_l[ind.lf] <- 1/length(ind.lf)
+vec_l[ind.lm] <- -1/length(ind.lm)
+M4 <- rbind("first female vs first male" = vec_f,
+            "last female vs last male" = vec_l)
+colnames(M4) <- names(coef(m_logist4b))
+
+posthoc4 <- glht(m_logist4b, linfct = M4)
+summary(posthoc4)
+
+logisticdata7b <- logisticdata7
+logisticdata7b$puby.gend.jour <- interaction(logisticdata7b$pubyear, logisticdata7b$gender, logisticdata7b$journal)
+m_logist7b <- glm(score ~ puby.gend.jour + numauthors + propfemales + pubmonth, data=logisticdata7b, family=binomial)
+saveRDS(m_logist7b,"./DataAnalysis/AltmetricScoreModeling/m_logist7b.RDS")
+# m_logist7b <- readRDS("./DataAnalysis/AltmetricScoreModeling/m_logist7b.RDS")
+coef(m_logist7b)
+
+ind.ff <- grep(pattern = "ff", x = names(coef(m_logist7b)))
+ind.fm <- grep(pattern = "fm", x = names(coef(m_logist7b)))
+vec_f <- rep(0, times = length(coef(m_logist7b)))
+vec_f[ind.ff] <- 1/length(ind.ff)
+vec_f[ind.fm] <- -1/length(ind.fm)
+ind.lf <- grep(pattern = "lf", x = names(coef(m_logist7b)))
+ind.lm <- grep(pattern = "lm", x = names(coef(m_logist7b)))
+vec_l <- rep(0, times = length(coef(m_logist7b)))
+vec_l[ind.lf] <- 1/length(ind.lf)
+vec_l[ind.lm] <- -1/length(ind.lm)
+M7 <- rbind("first female vs first male" = vec_f,
+            "last female vs last male" = vec_l)
+colnames(M7) <- names(coef(m_logist7b))
+
+posthoc7 <- glht(m_logist7b, linfct = M7)
+summary(posthoc7)
+
+# is data (in this case, the )
+# log ratio between first author female and male scores = -0.2425
+# std err = 0.1033
+# sigma sq = 0.1033^2*n (where n is sample size)
+# but I don't know what n was in glht????
+# is it just the n of the model?
+# 0.1033^2 = 0.01067089 which is very close to the value in vcov 0.0106683318
+# same for last author, 0.1211^2 = 0.01466521 which is close to vcov 0.0146728393
+# so maybe i don't need to multiply by n becacuse it needs to be var of the sample???
+# so the unbiased backtransform would be 
+
+# exp(fitted(lm.0) * (1 / nobs(mod.2) * sum(exp(resid(lm.0)))) # missing a closing bracket and mod.2 is a mistake?
+exp(fitted(m_logist7b) * (1 / nobs(m_logist7b) * sum(exp(resid(m_logist7b)))))
+# ??????
+
 #############
 ### PLOTS ###
 #############
 
+##### Plots for dif bw female and male for each journal for start year and end year #####
+
+pf <- ggplot(data=d[which(d$fl=="First author"),], aes(x=year, y=Estimate, color=journal)) +
+  theme_bw() +
+  scale_color_discrete() +
+  geom_point() +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2) +
+  geom_line() +
+  theme(
+    legend.position="right",
+    plot.title = element_text(hjust=0.5)
+  ) +
+  ggtitle("Difference between female and male first authors")
+pf
+
+pbio <- ggplot(data=d[which(d$journal=="bioRxiv"),], aes(x=year, y=Estimate, color=fl)) +
+  theme_bw() +
+  geom_point(position=position_dodge(.7)) +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2, position=position_dodge(.7)) +
+  theme(
+    legend.position = "none", legend.title = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  ) +
+  ggtitle("bioRxiv") +
+  scale_x_continuous(name="Year", limits=c(2010,2020)) +
+  scale_y_continuous(name="Difference in logscore", limits=c(-2,2))
+pbio
+
+pcell <- ggplot(data=d[which(d$journal=="Cell"),], aes(x=year, y=Estimate, color=fl)) +
+  theme_bw() +
+  geom_point(position=position_dodge(.7)) +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2, position=position_dodge(.7)) +
+  theme(
+    legend.position = "none", legend.title = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  ) +
+  ggtitle("Cell") +
+  scale_x_continuous(limits=c(2010,2020)) +
+  scale_y_continuous(limits=c(-2.5,2.5))
+pcell
+
+pnat <- ggplot(data=d[which(d$journal=="Nature"),], aes(x=year, y=Estimate, color=fl)) +
+  theme_bw() +
+  geom_point(position=position_dodge(.7)) +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2, position=position_dodge(.7)) +
+  theme(
+    legend.position = "none", legend.title = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  ) +
+  ggtitle("Nature") +
+  scale_x_continuous(limits=c(2010,2020)) +
+  scale_y_continuous(limits=c(-2.5,2.5))
+pnat
+
+pnejm <- ggplot(data=d[which(d$journal=="NEJM"),], aes(x=year, y=Estimate, color=fl)) +
+  theme_bw() +
+  geom_point(position=position_dodge(.7)) +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2, position=position_dodge(.7)) +
+  theme(
+    legend.position = "none", legend.title = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  ) +
+  ggtitle("NEJM") +
+  scale_x_continuous(limits=c(2010,2020)) +
+  scale_y_continuous(limits=c(-2.5,2.5))
+pnejm
+
+pplos <- ggplot(data=d[which(d$journal=="PLOS"),], aes(x=year, y=Estimate, color=fl)) +
+  theme_bw() +
+  geom_point(position=position_dodge(.7)) +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2, position=position_dodge(.7)) +
+  theme(
+    legend.position = "none", legend.title = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  ) +
+  ggtitle("PLOS") +
+  scale_x_continuous(limits=c(2010,2020)) +
+  scale_y_continuous(limits=c(-2.5,2.5))
+pplos
+
+ppnas <- ggplot(data=d[which(d$journal=="PNAS"),], aes(x=year, y=Estimate, color=fl)) +
+  theme_bw() +
+  geom_point(position=position_dodge(.7)) +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2, position=position_dodge(.7)) +
+  theme(
+    legend.position = "none", legend.title = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  ) +
+  ggtitle("PNAS") +
+  scale_x_continuous(limits=c(2010,2020)) +
+  scale_y_continuous(limits=c(-2.5,2.5))
+ppnas
+
+psci <- ggplot(data=d[which(d$journal=="Science"),], aes(x=year, y=Estimate, color=fl)) +
+  theme_bw() +
+  geom_point(position=position_dodge(.7)) +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2, position=position_dodge(.7)) +
+  theme(
+    legend.position = "right", legend.title = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    plot.margin = margin(0,2,0,0,"cm")
+  ) +
+  ggtitle("Science") +
+  scale_x_continuous(limits=c(2010,2020)) +
+  scale_y_continuous(limits=c(-2.5,2.5))
+psci
+
+# create grob of legend
+tmp <- ggplot_gtable(ggplot_build(psci))
+leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+plegend <- tmp$grobs[[leg]]
+psci <- psci + theme(legend.position = "none")
+
+fig1 <- as_ggplot(egg::ggarrange(pbio,pcell,pnat,pnejm,nrow=1))
+fig2 <- as_ggplot(egg::ggarrange(pplos,ppnas,psci,nrow=1))
+fig <- egg::ggarrange(fig1,fig2,nrow=2)
+
+
+##### Plots for dif bw female and male for each journal #####
+
+par(mar = c(5.1, 10.1, 4.1, 2.1))
+plot(posthoc5, xlim=c(-0.25,0.25), main="Dif in logscore for all journals except bioRxiv")
+d_allwithoutbio <- data.frame(confint(posthoc5)$confint)
+d_allwithoutbio$position <- c("First","Last")
+p_allwithoutbio <- ggplot(data=d_allwithoutbio, aes(x=position, y=Estimate)) +
+  geom_point() +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2) +
+  theme_bw() +
+  scale_y_continuous(limits=c(-1,1)) +
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        plot.title=element_text(hjust=0.5)) +
+  ggtitle("All journals except bioRxiv")
+p_allwithoutbio
+
+dbio2 <- data.frame(confint(posthoc8)$confint)
+dbio2$position <- c("First","Last")
+pbio2 <- ggplot(data=dbio2, aes(x=position, y=Estimate)) +
+  geom_point() +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2) +
+  theme_bw() +
+  scale_y_continuous(limits=c(-2,2)) +
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        plot.title=element_text(hjust=0.5)) +
+  ggtitle("bioRxiv")
+  
+
+dcell2 <- data.frame(confint(posthoccell)$confint)
+dcell2$position <- c("First","Last")
+pcell2 <- ggplot(data=dcell2, aes(x=position, y=Estimate)) +
+  geom_point() +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2) +
+  theme_bw() +
+  scale_y_continuous(limits=c(-2,2)) +
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        plot.title=element_text(hjust=0.5)) +
+  ggtitle("Cell")
+
+dnat2 <- data.frame(confint(posthocnat)$confint)
+dnat2$position <- c("First","Last")
+pnat2 <- ggplot(data=dnat2, aes(x=position, y=Estimate)) +
+  geom_point() +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2) +
+  theme_bw() +
+  scale_y_continuous(limits=c(-2,2)) +
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        plot.title=element_text(hjust=0.5)) +
+  ggtitle("Nature")
+
+dnejm2 <- data.frame(confint(posthocnejm)$confint)
+dnejm2$position <- c("First","Last")
+pnejm2 <- ggplot(data=dnejm2, aes(x=position, y=Estimate)) +
+  geom_point() +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2) +
+  theme_bw() +
+  scale_y_continuous(limits=c(-2,2)) +
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        plot.title=element_text(hjust=0.5)) +
+  ggtitle("NEJM")
+
+dplos2 <- data.frame(confint(posthocplos)$confint)
+dplos2$position <- c("First","Last")
+pplos2 <- ggplot(data=dplos2, aes(x=position, y=Estimate)) +
+  geom_point() +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2) +
+  theme_bw() +
+  scale_y_continuous(limits=c(-2,2)) +
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        plot.title=element_text(hjust=0.5)) +
+  ggtitle("PLoS ONE")
+
+dpnas2 <- data.frame(confint(posthocpnas)$confint)
+dpnas2$position <- c("First","Last")
+ppnas2 <- ggplot(data=dpnas2, aes(x=position, y=Estimate)) +
+  geom_point() +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2) +
+  theme_bw() +
+  scale_y_continuous(limits=c(-2,2)) +
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        plot.title=element_text(hjust=0.5)) +
+  ggtitle("PNAS")
+
+dsci2 <- data.frame(confint(posthocsci)$confint)
+dsci2$position <- c("First","Last")
+psci2 <- ggplot(data=dsci2, aes(x=position, y=Estimate)) +
+  geom_point() +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2) +
+  theme_bw() +
+  scale_y_continuous(limits=c(-2,2)) +
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        plot.title=element_text(hjust=0.5)) +
+  ggtitle("Science")
+
+pall <- egg::ggarrange(pbio2, pcell2, pnat2, pnejm2, pplos2, ppnas2, psci2, p_allwithoutbio,nrow=2)
+
+dlogist4 <- data.frame(confint(posthoc4)$confint)
+dlogist4$position <- c("First","Last")
+plogist4 <- ggplot(data=dlogist4, aes(x=position, y=Estimate)) +
+  geom_point() +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2) +
+  theme_bw() +
+  scale_y_continuous(limits=c(-20,20)) +
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        plot.title=element_text(hjust=0.5)) +
+  ggtitle("All except bioRxiv")
+plogist4
+
+dlogist7 <- data.frame(confint(posthoc7)$confint)
+dlogist7$position <- c("First","Last")
+plogist7 <- ggplot(data=dlogist7, aes(x=position, y=Estimate)) +
+  geom_point() +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2) +
+  theme_bw() +
+  scale_y_continuous(limits=c(-1,1)) +
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        plot.title=element_text(hjust=0.5)) +
+  ggtitle("bioRxiv")
+plogist7
+
+##### OLD #####
 par(mfrow=c(1,1))
 
 # can't really plot predictions for logistic glm
@@ -696,4 +1424,80 @@ plot_model(m_linear8,type="pred",terms=c("numauthors"))
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+fffmSci2018 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.ff.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.fm.Science", nomatch = 0))
+fffmSci2017 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2017.ff.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2017.fm.Science", nomatch = 0))
+fffmSci2016 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2016.ff.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2016.fm.Science", nomatch = 0))
+fffmSci2015 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2015.ff.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2015.fm.Science", nomatch = 0))
+fffmSci2014 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2014.ff.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2014.fm.Science", nomatch = 0))
+fffmSci2013 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2013.ff.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2013.fm.Science", nomatch = 0))
+fffmSci2012 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2012.ff.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2012.fm.Science", nomatch = 0))
+fffmSci2011 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.ff.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.fm.Science", nomatch = 0))
+lflmSci2018 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.lf.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2018.lm.Science", nomatch = 0))
+lflmSci2017 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2017.lf.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2017.lm.Science", nomatch = 0))
+lflmSci2016 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2016.lf.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2016.lm.Science", nomatch = 0))
+lflmSci2015 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2015.lf.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2015.lm.Science", nomatch = 0))
+lflmSci2014 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2014.lf.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2014.lm.Science", nomatch = 0))
+lflmSci2013 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2013.lf.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2013.lm.Science", nomatch = 0))
+lflmSci2012 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2012.lf.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2012.lm.Science", nomatch = 0))
+lflmSci2011 <- (match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.lf.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5d2)), table = "puby.gend.jour2011.lm.Science", nomatch = 0))
+Mat <- rbind(fffmSci2018, fffmSci2017, fffmSci2016, fffmSci2015, fffmSci2014, fffmSci2013, fffmSci2012, fffmSci2011,  
+           lflmSci2018, lflmSci2017, lflmSci2016, lflmSci2015, lflmSci2014, lflmSci2013, lflmSci2012, lflmSci2011)
+colnames(Mat) <- names(coef(m_linear5d2))
+
+posthocd <- glht(m_linear5d2, linfct = Mat)
+summary(posthocd)
+plot(posthocd)
+
+# prep for plot
+d2 <- data.frame(confint(posthocd)$confint)
+d2$year <- rep(2018:2011,times=2)
+d2$position <- c(rep("First author", times=8),rep("Last author", times=8))
+d2$journal <- as.factor(rep("Science",times=16))
+tail(d2)
+
+psci3 <- ggplot(data=d2, aes(x=year, y=Estimate, color=fl)) +
+  theme_bw() +
+  geom_point(position=position_dodge(.7)) +
+  geom_errorbar(aes(ymin=lwr,ymax=upr), width=.2, position=position_dodge(.7)) +
+  theme(
+    legend.position = "right", legend.title = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    plot.margin = margin(0,2,0,0,"cm")
+  ) +
+  ggtitle("Science") +
+  scale_x_continuous(limits=c(2010,2020)) +
+  scale_y_continuous(limits=c(-2.5,2.5))
+psci3
 
