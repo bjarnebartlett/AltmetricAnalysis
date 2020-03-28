@@ -411,6 +411,16 @@ lineardata5$journal <- factor(lineardata5$journal)
 m_linear5 <- readRDS("./DataAnalysis/AltmetricScoreModeling/m_linear5.RDS")
 summary(m_linear5)
 
+# added 2020.01.23
+library(MASS)
+rm_linear5 <- rlm(logscore ~ pubyear*gender*journal +
+                                        propfemales +
+                                        numauthors +
+                                        pubmonth,
+                                      data=lineardata5)
+summary(rm_linear5)
+###
+
 par(mfrow=c(2,2))
 plot(m_linear5)
 # looks pretty good
@@ -1501,3 +1511,219 @@ psci3 <- ggplot(data=d2, aes(x=year, y=Estimate, color=fl)) +
   scale_y_continuous(limits=c(-2.5,2.5))
 psci3
 
+
+##########
+# What's going on with Science???
+
+
+meltdata <- readRDS("./DataAnalysis/AltmetricScoreModeling/meltdata.RDS")
+
+scidata <- meltdata[which(meltdata$journal=="Science"),]
+colnames(scidata) # pubyear is 8, score is 20, gender is 21
+scidata <- scidata[,c(8,20,21)]
+scidata2 <- aggregate(scidata$score~scidata$gender*scidata$pubyear,FUN=mean)
+colnames(scidata2) <- c("gender","pubyear","meanscore")
+scidata3 <- scidata2[which(!(scidata2$gender %in% c("f","l"))),]
+ggplot(data=scidata3, aes(x=pubyear,y=meanscore,color=gender)) +
+  geom_line() +
+  ggtitle("Science")
+ 
+natdata <- meltdata[which(meltdata$journal=="Nature"),]
+colnames(natdata) # pubyear is 8, score is 20, gender is 21
+natdata <- natdata[,c(8,20,21)]
+natdata2 <- aggregate(natdata$score~natdata$gender*natdata$pubyear,FUN=mean)
+colnames(natdata2) <- c("gender","pubyear","meanscore")
+natdata3 <- natdata2[which(!(natdata2$gender %in% c("f","l"))),]
+ggplot(data=natdata3, aes(x=pubyear,y=meanscore,color=gender)) +
+  geom_line() +
+  ggtitle("Nature")
+
+plosdata <- meltdata[which(meltdata$journal=="PLoS ONE"),]
+colnames(plosdata) # pubyear is 8, score is 20, gender is 21
+plosdata <- plosdata[,c(8,20,21)]
+plosdata2 <- aggregate(plosdata$score~plosdata$gender*plosdata$pubyear,FUN=mean)
+colnames(plosdata2) <- c("gender","pubyear","meanscore")
+plosdata3 <- plosdata2[which(!(plosdata2$gender %in% c("f","l"))),]
+ggplot(data=plosdata3, aes(x=pubyear,y=meanscore,color=gender)) +
+  geom_line() +
+  ggtitle("PLOS")
+
+pnasdata <- meltdata[which(meltdata$journal=="PNAS"),]
+colnames(pnasdata) # pubyear is 8, score is 20, gender is 21
+pnasdata <- pnasdata[,c(8,20,21)]
+pnasdata2 <- aggregate(pnasdata$score~pnasdata$gender*pnasdata$pubyear,FUN=mean)
+colnames(pnasdata2) <- c("gender","pubyear","meanscore")
+pnasdata3 <- pnasdata2[which(!(pnasdata2$gender %in% c("f","l"))),]
+ggplot(data=pnasdata3, aes(x=pubyear,y=meanscore,color=gender)) +
+  geom_line() +
+  ggtitle("PNAS")
+
+biodata <- meltdata[which(meltdata$journal=="bioRxiv"),]
+colnames(biodata) # pubyear is 8, score is 20, gender is 21
+biodata <- biodata[,c(8,20,21)]
+biodata2 <- aggregate(biodata$score~biodata$gender*biodata$pubyear,FUN=mean)
+colnames(biodata2) <- c("gender","pubyear","meanscore")
+biodata3 <- biodata2[which(!(biodata2$gender %in% c("f","l"))),]
+ggplot(data=biodata3, aes(x=pubyear,y=meanscore,color=gender)) +
+  geom_line() +
+  ggtitle("bioRxiv")
+
+nejmdata <- meltdata[which(meltdata$journal=="NEJM"),]
+colnames(nejmdata) # pubyear is 8, score is 20, gender is 21
+nejmdata <- nejmdata[,c(8,20,21)]
+nejmdata2 <- aggregate(nejmdata$score~nejmdata$gender*nejmdata$pubyear,FUN=mean)
+colnames(nejmdata2) <- c("gender","pubyear","meanscore")
+nejmdata3 <- nejmdata2[which(!(nejmdata2$gender %in% c("f","l"))),]
+ggplot(data=nejmdata3, aes(x=pubyear,y=meanscore,color=gender)) +
+  geom_line() +
+  ggtitle("NEJM")
+
+celldata <- meltdata[which(meltdata$journal=="Cell"),]
+colnames(celldata) # pubyear is 8, score is 20, gender is 21
+celldata <- celldata[,c(8,20,21)]
+celldata2 <- aggregate(celldata$score~celldata$gender*celldata$pubyear,FUN=mean)
+colnames(celldata2) <- c("gender","pubyear","meanscore")
+celldata3 <- celldata2[which(!(celldata2$gender %in% c("f","l"))),]
+ggplot(data=celldata3, aes(x=pubyear,y=meanscore,color=gender)) +
+  geom_line() +
+  ggtitle("Cell")
+
+#######
+
+# max score in science is > 8000 (Obama paper)
+lineardata5f <- lineardata5[which(lineardata5$score<2000),]
+max(lineardata5f$score)
+dim(lineardata5); dim(lineardata5f)
+# this eliminated 73 articles
+lineardata5f$puby.gend.jour <- interaction(lineardata5f$pubyear, lineardata5f$gender, lineardata5f$journal)
+
+m_linear5f <- lm(logscore ~ puby.gend.jour +
+                  propfemales +
+                  numauthors +
+                  pubmonth, # zia put -1 here on another version - to get rid of intercept? do i need to?
+                data=lineardata5f)
+summary(m_linear5f)
+coef(m_linear5f)
+
+
+fffmSci2018 <- (match(x = names(coef(m_linear5f)), table = "puby.gend.jour2018.ff.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5f)), table = "puby.gend.jour2018.fm.Science", nomatch = 0))
+fffmSci2017 <- (match(x = names(coef(m_linear5f)), table = "puby.gend.jour2017.ff.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5f)), table = "puby.gend.jour2017.fm.Science", nomatch = 0))
+fffmSci2016 <- (match(x = names(coef(m_linear5f)), table = "puby.gend.jour2016.ff.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5f)), table = "puby.gend.jour2016.fm.Science", nomatch = 0))
+fffmSci2015 <- (match(x = names(coef(m_linear5f)), table = "puby.gend.jour2015.ff.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5f)), table = "puby.gend.jour2015.fm.Science", nomatch = 0))
+fffmSci2014 <- (match(x = names(coef(m_linear5f)), table = "puby.gend.jour2014.ff.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5f)), table = "puby.gend.jour2014.fm.Science", nomatch = 0))
+fffmSci2013 <- (match(x = names(coef(m_linear5f)), table = "puby.gend.jour2013.ff.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5f)), table = "puby.gend.jour2013.fm.Science", nomatch = 0))
+fffmSci2012 <- (match(x = names(coef(m_linear5f)), table = "puby.gend.jour2012.ff.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5f)), table = "puby.gend.jour2012.fm.Science", nomatch = 0))
+fffmSci2011 <- (match(x = names(coef(m_linear5f)), table = "puby.gend.jour2011.ff.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5f)), table = "puby.gend.jour2011.fm.Science", nomatch = 0))
+lflmSci2018 <- (match(x = names(coef(m_linear5f)), table = "puby.gend.jour2018.lf.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5f)), table = "puby.gend.jour2018.lm.Science", nomatch = 0))
+lflmSci2017 <- (match(x = names(coef(m_linear5f)), table = "puby.gend.jour2017.lf.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5f)), table = "puby.gend.jour2017.lm.Science", nomatch = 0))
+lflmSci2016 <- (match(x = names(coef(m_linear5f)), table = "puby.gend.jour2016.lf.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5f)), table = "puby.gend.jour2016.lm.Science", nomatch = 0))
+lflmSci2015 <- (match(x = names(coef(m_linear5f)), table = "puby.gend.jour2015.lf.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5f)), table = "puby.gend.jour2015.lm.Science", nomatch = 0))
+lflmSci2014 <- (match(x = names(coef(m_linear5f)), table = "puby.gend.jour2014.lf.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5f)), table = "puby.gend.jour2014.lm.Science", nomatch = 0))
+lflmSci2013 <- (match(x = names(coef(m_linear5f)), table = "puby.gend.jour2013.lf.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5f)), table = "puby.gend.jour2013.lm.Science", nomatch = 0))
+lflmSci2012 <- (match(x = names(coef(m_linear5f)), table = "puby.gend.jour2012.lf.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5f)), table = "puby.gend.jour2012.lm.Science", nomatch = 0))
+lflmSci2011 <- (match(x = names(coef(m_linear5f)), table = "puby.gend.jour2011.lf.Science", nomatch = 0) -
+                  match(x = names(coef(m_linear5f)), table = "puby.gend.jour2011.lm.Science", nomatch = 0))
+Mat <- rbind(fffmSci2018, fffmSci2017, fffmSci2016, fffmSci2015, fffmSci2014, fffmSci2013, fffmSci2012, fffmSci2011,  
+             lflmSci2018, lflmSci2017, lflmSci2016, lflmSci2015, lflmSci2014, lflmSci2013, lflmSci2012, lflmSci2011)
+colnames(Mat) <- names(coef(m_linear5f))
+Matf <- Mat[1:8,]
+Matl <- Mat[9:16,]
+
+posthocf <- glht(m_linear5f, linfct = Matf)
+summary(posthocf)
+plot(posthocf, main="dif in logscore for first author")
+
+posthocl <- glht(m_linear5f, linfct = Matl)
+summary(posthocl)
+plot(posthocl, main="dif in logscore for last author")
+
+
+
+
+
+
+
+
+#####
+# robust model
+
+fffmCell2018 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.ff.Cell", nomatch = 0) -
+                   match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.fm.Cell", nomatch = 0))
+fffmCell2011 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.ff.Cell", nomatch = 0) -
+                   match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.fm.Cell", nomatch = 0))
+lflmCell2018 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.lf.Cell", nomatch = 0) -
+                   match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.lm.Cell", nomatch = 0))
+lflmCell2011 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.lf.Cell", nomatch = 0) -
+                   match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.lm.Cell", nomatch = 0))
+
+fffmNat2018 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.ff.Nature", nomatch = 0) -
+                  match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.fm.Nature", nomatch = 0))
+fffmNat2011 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.ff.Nature", nomatch = 0) -
+                  match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.fm.Nature", nomatch = 0))
+lflmNat2018 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.lf.Nature", nomatch = 0) -
+                  match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.lm.Nature", nomatch = 0))
+lflmNat2011 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.lf.Nature", nomatch = 0) -
+                  match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.lm.Nature", nomatch = 0))
+
+fffmNEJM2018 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.ff.NEJM", nomatch = 0) -
+                   match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.fm.NEJM", nomatch = 0))
+fffmNEJM2011 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.ff.NEJM", nomatch = 0) -
+                   match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.fm.NEJM", nomatch = 0))
+lflmNEJM2018 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.lf.NEJM", nomatch = 0) -
+                   match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.lm.NEJM", nomatch = 0))
+lflmNEJM2011 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.lf.NEJM", nomatch = 0) -
+                   match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.lm.NEJM", nomatch = 0))
+
+fffmPLOS2018 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.ff.PLoS ONE", nomatch = 0) -
+                   match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.fm.PLoS ONE", nomatch = 0))
+fffmPLOS2011 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.ff.PLoS ONE", nomatch = 0) -
+                   match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.fm.PLoS ONE", nomatch = 0))
+lflmPLOS2018 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.lf.PLoS ONE", nomatch = 0) -
+                   match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.lm.PLoS ONE", nomatch = 0))
+lflmPLOS2011 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.lf.PLoS ONE", nomatch = 0) -
+                   match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.lm.PLoS ONE", nomatch = 0))
+
+fffmPNAS2018 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.ff.PNAS", nomatch = 0) -
+                   match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.fm.PNAS", nomatch = 0))
+fffmPNAS2011 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.ff.PNAS", nomatch = 0) -
+                   match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.fm.PNAS", nomatch = 0))
+lflmPNAS2018 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.lf.PNAS", nomatch = 0) -
+                   match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.lm.PNAS", nomatch = 0))
+lflmPNAS2011 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.lf.PNAS", nomatch = 0) -
+                   match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.lm.PNAS", nomatch = 0))
+
+fffmSci2018 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.ff.Science", nomatch = 0) -
+                  match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.fm.Science", nomatch = 0))
+fffmSci2011 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.ff.Science", nomatch = 0) -
+                  match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.fm.Science", nomatch = 0))
+lflmSci2018 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.lf.Science", nomatch = 0) -
+                  match(x = names(coef(rm_linear5)), table = "puby.gend.jour2018.lm.Science", nomatch = 0))
+lflmSci2011 <- (match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.lf.Science", nomatch = 0) -
+                  match(x = names(coef(rm_linear5)), table = "puby.gend.jour2011.lm.Science", nomatch = 0))
+
+M <- rbind(fffmCell2018, fffmCell2011, lflmCell2018, lflmCell2011,
+           fffmNat2018,  fffmNat2011,  lflmNat2018,  lflmNat2011,
+           fffmNEJM2018, fffmNEJM2011, lflmNEJM2018, lflmNEJM2011,
+           fffmPLOS2018, fffmPLOS2011, lflmPLOS2018, lflmPLOS2011,
+           fffmPNAS2018, fffmPNAS2011, lflmPNAS2018, lflmPNAS2011,
+           fffmSci2018,  fffmSci2011,  lflmSci2018,  lflmSci2011)
+colnames(M) <- names(coef(rm_linear5))
+
+posthocdif <- glht(rm_linear5, linfct = M)
+summary(posthocdif)
+plot(posthocdif)
