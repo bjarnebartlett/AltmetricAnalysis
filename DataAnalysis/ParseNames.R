@@ -39,6 +39,8 @@ subsetyear <- 2011
 probabilitythreshold <- 0.9
 confthreshold <- 0.95
 
+apikey <- "[insert api key here]"
+
 # use only for testing
 # startarticlenum <- 1
 # endarticlenum <- 20
