@@ -49,10 +49,10 @@ This analysis genderizes authors for those 200,000 articles, then models Altmetr
   - Runs models:
     - Logistic model: whether or not an article obtains a score > 0 ~ interaction between publication year, journal and first/last author gender, publication month, proportion of female authors and total number of authors
     - Linear model: log(score) ~  interaction between publication year, journal and first/last author gender, publication month, proportion of female authors and total number of authors
-    - Saved in [3.Modeling.](./3.Modeling)
+    - Saved in [Models.](./Models)
   - Does standard model checking via plots
   - Does post-hoc testing via multiple comparisons
-  - Creates plots for paper in [4.Figures](./4.Figures/)
+  - Creates plots for paper in [Figures](./Figures/)
 
 
 
