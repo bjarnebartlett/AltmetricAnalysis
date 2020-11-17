@@ -31,6 +31,8 @@ setwd("/Users/juliefortin/Documents/UBC/Projects/Altmetrics/AltmetricAnalysis/")
 # install.packages("ggpubr")
 # install.packages("sjPlot")
 # install.packages("car")
+# install.packages("robustbase")
+# install.packages("quantreg")
 library(data.table)
 library(visreg)
 library(tidyverse)
@@ -39,6 +41,8 @@ library(ggplot2)
 library(ggpubr)
 library(sjPlot)
 library(car)
+library(robustbase)
+library(quantreg)
 
 
 #################
@@ -233,7 +237,7 @@ afn.makefigure <- function(df, author, type) {
   plots <- vector(mode="list", length=length(journals))
   if (type == "logistic") {
     yaxis = "Difference in log odds ratio"
-  } else if (type == "linear") {
+  } else if (type == "linear" | type == "quantile") {
     yaxis = "Difference in log(score)"
   }
   
@@ -345,6 +349,7 @@ binarydata[score>0]$score <- 1
 ## bioRxiv started in 2015, so the time series of data for bioRxiv is shorter than the rest of the journals
 ## So we will code it separately
 binarydata_bio <- binarydata[journal=="bioRxiv" & pubyear %in% c(2015:2018)]
+binarydata_bio$pubyear <- factor(binarydata_bio$pubyear)
 binarydata_oth <- binarydata[journal!="bioRxiv"]
 
 ## Now, of all articles that have scores >0 after 1 year
@@ -371,7 +376,7 @@ logisticmodel_bio <- glm(score ~  puby.gend +
                                   pubmonth,
                          data=binarydata_bio,
                          family=binomial)
-saveRDS(logisticmodel_bio, "./Models/logisticmodel_bio.RDS")
+# saveRDS(logisticmodel_bio, "./Models/logisticmodel_bio.RDS")
 # logisticmodel_bio <- readRDS("./Models/logisticmodel_bio.RDS")
 summary(logisticmodel_bio)
 
@@ -383,7 +388,7 @@ logisticmodel_oth <- glm(score ~  puby.gend.jour +
                                   pubmonth,
                          data=binarydata_oth,
                          family=binomial)
-saveRDS(logisticmodel_oth, "./Models/logisticmodel_oth.RDS")
+# saveRDS(logisticmodel_oth, "./Models/logisticmodel_oth.RDS")
 # logisticmodel_oth <- readRDS("./Models/logisticmodel_oth.RDS")
 summary(logisticmodel_oth)
 
@@ -394,7 +399,7 @@ linearmodel_bio <- lm(logscore ~ puby.gend +
                                  numauthors +
                                  pubmonth,
                       data=lineardata_bio)
-saveRDS(linearmodel_bio, "./Models/linearmodel_bio.RDS")
+# saveRDS(linearmodel_bio, "./Models/linearmodel_bio.RDS")
 # linearmodel_bio <- readRDS("./Models/linearmodel_bio.RDS")
 summary(linearmodel_bio)
 
@@ -405,7 +410,7 @@ linearmodel_oth <- lm(logscore ~ puby.gend.jour +
                                  numauthors +
                                  pubmonth,
                       data=lineardata_oth)
-saveRDS(linearmodel_oth, "./Models/linearmodel_oth.RDS")
+# saveRDS(linearmodel_oth, "./Models/linearmodel_oth.RDS")
 # linearmodel_oth <- readRDS("./Models/linearmodel_oth.RDS")
 summary(linearmodel_oth)
 
@@ -426,7 +431,7 @@ crPlots(logisticmodel_bio, "propfemales")
 crPlots(logisticmodel_bio, "numauthors")
 crPlots(logisticmodel_oth, "propfemales")
 crPlots(logisticmodel_oth, "numauthors")
-# looks somewhat linear
+# There are some outliers, also shown in residual vs leverage plot
 
 ## 3. are there influential values in continuous predictors?
 plot(logisticmodel_bio, 5)
@@ -438,17 +443,45 @@ faraway::vif(data.frame(binarydata_bio$numauthors,binarydata_bio$propfemales))
 faraway::vif(data.frame(binarydata_oth$numauthors,binarydata_oth$propfemales))
 # values are close to 1, which means the predictors are not correlated
 
-## Now let's check if linear assumptions hold
+## Conclusion: there are some potential issues with outliers (seen in partial residual & residual vs leverage plots)
+## Let's see if estimates are robust
+logisticmodel_bio_rob <- glmrob(score ~  puby.gend + propfemales + numauthors + pubmonth, data=binarydata_bio, family=binomial)
+logisticmodel_oth_rob <- glmrob(score ~  puby.gend.jour + propfemales + numauthors + pubmonth, data=binarydata_oth, family=binomial)
+# Get singularity error, which has to do with the interaction term (error disappears if interaction is removed)
+# Instead, to see if the outliers really have an impact we can remove the points that are close to cook's lines
+# outliers are 45856, 19297, 42789
+binarydata_bio_outliers <- binarydata_bio[-c(45856,19297,42789,22487),]
+logisticmodel_bio_outliers <- glm(score ~  puby.gend +
+                                   propfemales +
+                                   numauthors +
+                                   pubmonth,
+                                 data=binarydata_bio_outliers,
+                                 family=binomial)
+summary(logisticmodel_bio_outliers)
+summary(logisticmodel_bio)
+# Very little difference in coefficients
+binarydata_oth_outliers <- binarydata_oth[-c(122252,190864),]
+logisticmodel_oth_outliers <- glm(score ~  puby.gend.jour +
+                                    propfemales +
+                                    numauthors +
+                                    pubmonth,
+                                  data=binarydata_oth_outliers,
+                                  family=binomial)
+plot(logisticmodel_oth_outliers, 5)
+summary(logisticmodel_oth_outliers)
+summary(logisticmodel_oth)
+# Very little difference in coefficients
+# So not too much concern about outliers in logistic models
 
+## Now let's check if linear assumptions hold
 par(mfrow=c(2,2)) # plot in a 2x2 square
 plot(linearmodel_bio)
 plot(linearmodel_oth)
 par(mfrow=c(1,1)) # change it back for future plots
 # 1. is it linear? 
 # residual plot looks more or less equal on either side of 0 except straight line due to truncated data (scores > 0)
-# residuals negative for high fitted values: model is predicting higher scores than actual
 # 2. is it normal?
-# qq-plot looks quite straight in both cases
+# qq-plot 
 # data can be assumed to be normal
 # 3. is it homoskedastic?
 # scale-location plot lines looks pretty flat until fitted value of about 3.5 for bio, 5 for others
@@ -456,6 +489,21 @@ par(mfrow=c(1,1)) # change it back for future plots
 # 4. are there highly influential outliers?
 # the residuals vs leverage plots show no points outside of Cook's distance
 # it looks like there are not points we need to worry about
+
+## Conclusion: the main concern here is that, because scores are truncated (scores > 0), the error distribution is not normal
+## We could overcome this issue by defining the model with a different distribution,
+## or fitting a distribution-free model (quantile methods)
+## or doing inference with non-parametric bootstrapping
+## or other specific approaches developed for non-parametric inference
+quantilemodel_bio <- rq(logscore ~ puby.gend + propfemales + numauthors + pubmonth, data=lineardata_bio, tau=0.5)
+summary(quantilemodel_bio)
+quantilemodel_oth <- rq(logscore ~ puby.gend.jour + propfemales + numauthors + pubmonth, data=lineardata_oth, tau=0.5)
+summary(quantilemodel_oth)
+# warning non-positive fis:
+# This is generally harmless, leading to a somewhat conservative (larger) estimate of the standard errors, however if the
+# reported number of non-positive fis is large relative to the sample size then it is an indication of misspecification of the model.
+# (http://www.econ.uiuc.edu/~roger/research/rq/FAQ)
+# In our case, this is way smaller than sample size, so should be okay
 
 
 ################
@@ -468,6 +516,16 @@ par(mfrow=c(1,1)) # change it back for future plots
 1 - logisticmodel_oth$deviance / logisticmodel_oth$null.deviance # 0.2909 # doesn't work if out-of-sample
 summary(linearmodel_bio) # Mult 0.05691 Adj 0.05587
 summary(linearmodel_oth) # Mult 0.2611 Adj 0.2589
+
+# For quantile regression
+# https://stats.stackexchange.com/questions/129200/r-squared-in-quantile-regression
+# suggests Koenker & Machado 1999 method
+rho <- function(u,tau=.5)u*(tau - (u < 0))
+quantilemodel_bio_0 <- rq(logscore ~ 1, data=lineardata_bio, tau=0.5)
+R1 <- 1 - quantilemodel_bio$rho/quantilemodel_bio_0$rho # 0.03
+quantilemodel_oth_0 <- rq(logscore ~ 1, data=lineardata_oth, tau=0.5)
+R1 <- 1 - quantilemodel_oth$rho/quantilemodel_oth_0$rho # 0.14
+# both a bit lower than the regular lm
 
 ## Multiple comparisons
 ## We start with hypotheses that the difference in score/probability of obtaining a score
@@ -500,6 +558,18 @@ summary(linearposthoc_oth)
 plot(linearposthoc_oth)
 confint(linearposthoc_oth)
 
+quantilematrix_bio <- afn.createlinearmatrix(quantilemodel_bio,"bioRxiv")
+quantileposthoc_bio <- glht(quantilemodel_bio, linfct = quantilematrix_bio, coef=coef(quantilemodel_bio), vcov=summary.rq(quantilemodel_bio, se="boot", R=1000, cov=T)$cov)
+summary(quantileposthoc_bio)
+plot(quantileposthoc_bio)
+confint(quantileposthoc_bio)
+
+quantilematrix_oth <- afn.createlinearmatrix(quantilemodel_oth,c("Cell","Nature","NEJM","PLoS ONE","PNAS","Science"))
+quantileposthoc_oth <- glht(quantilemodel_oth, linfct = quantilematrix_oth, coef=coef(quantilemodel_oth), vcov=summary.rq(quantilemodel_oth, se="boot", R=1000, cov=T)$cov)
+summary(quantileposthoc_oth)
+plot(quantileposthoc_oth)
+confint(quantileposthoc_oth)
+
 
 #########################
 ### PLOT INTERACTIONS ###
@@ -522,6 +592,14 @@ lineardf$author <- factor(lineardf$author)
 lineardf$year <- as.numeric(substr(rownames(lineardf),nchar(rownames(lineardf))-3,nchar(rownames(lineardf)))) # last 4 chars are year
 lineardf$journal <- as.factor(substr(rownames(lineardf),5,nchar(rownames(lineardf))-4)) # middle chars are journal
 
+quantiledf <-  rbind(data.frame(confint(quantileposthoc_bio)$confint), data.frame(confint(quantileposthoc_oth)$confint))
+quantiledf$author <- substr(rownames(quantiledf),1,1)
+quantiledf$author[quantiledf$author=="f"] <- "First author"
+quantiledf$author[quantiledf$author=="l"] <- "Last author"
+quantiledf$author <- factor(quantiledf$author)
+quantiledf$year <- as.numeric(substr(rownames(quantiledf),nchar(rownames(quantiledf))-3,nchar(rownames(quantiledf)))) # last 4 chars are year
+quantiledf$journal <- as.factor(substr(rownames(quantiledf),5,nchar(rownames(quantiledf))-4)) # middle chars are journal
+
 # Logistic
 logisticfig_first <- afn.makefigure(logisticdf, "First author", "logistic")
 ggsave("./Figures/logistic_firstauthor.tiff",logisticfig_first,device=tiff(),width=8,height=6,units="in",dpi=900)
@@ -533,6 +611,12 @@ linearfig_first <- afn.makefigure(lineardf, "First author", "linear")
 ggsave("./Figures/linear_firstauthor.tiff",linearfig_first,device=tiff(),width=8,height=6,units="in",dpi=900)
 linearfig_last <- afn.makefigure(lineardf, "Last author", "linear")
 ggsave("./Figures/linear_lastauthor.tiff",linearfig_last,device=tiff(),width=8,height=6,units="in",dpi=900)
+
+# Quantile
+quantilefig_first <- afn.makefigure(quantiledf, "First author", "quantile")
+ggsave("./Figures/quantile_firstauthor.tiff",quantilefig_first,device=tiff(),width=8,height=6,units="in",dpi=900)
+quantilefig_last <- afn.makefigure(quantiledf, "Last author", "quantile")
+ggsave("./Figures/quantile_lastauthor.tiff",quantilefig_last,device=tiff(),width=8,height=6,units="in",dpi=900)
 
 
 #######################
@@ -659,3 +743,88 @@ freqplot1 <- ggplot(meltfreqdata1, aes(fill=Journal, y=Frequency, x=Year)) +
   theme(plot.title = element_text(hjust=0.5))
 ggsave("./Figures/freqplot_articlesabove0.tiff",freqplot1,device=tiff(),width=8,height=6,units="in",dpi=900)
 
+
+#####################
+### BACKTRANSFORM ###
+#####################
+
+## We want to translate these model results into more interpretable terms
+## We know how the Altmetric scores are calculated (e.g. a tweet is worth 0.25, a news article is with 8)
+## We want to calculate what the difference in scores for female/male first authors in Science in 2017 and 2018 translates to
+## Are male authors being Tweeted once more? 100 more times?
+
+
+## Rerun models removing intercepts (makes it easier to do smearing estimate) (-1 removes intercept)
+logisticmodel_bio_nointerc <- glm(score ~  puby.gend + propfemales + numauthors + pubmonth - 1, data=binarydata_bio, family=binomial)
+# saveRDS(logisticmodel_bio_nointerc, "./Models/logisticmodel_bio_nointerc.RDS")
+# logisticmodel_bio_nointerc <- readRDS("./Models/logisticmodel_bio_nointerc.RDS")
+
+logisticmodel_oth_nointerc <- glm(score ~  puby.gend.jour + propfemales + numauthors + pubmonth - 1, data=binarydata_oth, family=binomial)
+# saveRDS(logisticmodel_oth_nointerc, "./Models/logisticmodel_oth_nointerc.RDS")
+# logisticmodel_oth_nointerc <- readRDS("./Models/logisticmodel_oth_nointerc.RDS")
+
+linearmodel_bio_nointerc <- lm(logscore ~ puby.gend + propfemales + numauthors + pubmonth - 1, data=lineardata_bio)
+# saveRDS(linearmodel_bio_nointerc, "./Models/linearmodel_bio_nointerc.RDS")
+# linearmodel_bio_nointerc <- readRDS("./Models/linearmodel_bio_nointerc.RDS")
+
+linearmodel_oth_nointerc <- lm(logscore ~ puby.gend.jour + propfemales + numauthors + pubmonth - 1, data=lineardata_oth)
+# saveRDS(linearmodel_oth_nointerc, "./Models/linearmodel_oth_nointerc.RDS")
+# linearmodel_oth_nointerc <- readRDS("./Models/linearmodel_oth_nointerc.RDS")
+
+quantilemodel_bio_nointerc <- rq(logscore ~ puby.gend + propfemales + numauthors + pubmonth -1, data=lineardata_bio, tau=0.5)
+# saveRDS(quantilemodel_bio_nointerc, "./Models/quantilemodel_bio_nointerc.RDS")
+# quantilemodel_bio_nointerc <- readRDS("./Models/quantilemodel_bio_nointerc.RDS")
+
+quantilemodel_oth_nointerc <- rq(logscore ~ puby.gend.jour + propfemales + numauthors + pubmonth -1, data=lineardata_oth, tau=0.5)
+# saveRDS(quantilemodel_oth_nointerc, "./Models/quantilemodel_oth_nointerc.RDS")
+# quantilemodel_oth_nointerc <- readRDS("./Models/quantilemodel_oth_nointerc.RDS")
+
+## We are interested in backtransforming the difference in scores for Science in 2017 & 2018
+summary(linearmodel_oth_nointerc)
+# puby.gend.jour2017.ff.Science   1.2510277
+# puby.gend.jour2018.ff.Science   1.0787635
+# puby.gend.jour2017.fm.Science   1.9666501
+# puby.gend.jour2018.fm.Science   2.9624915
+# taking the exp(coefficient) produces a biased backtransform (https://www.biorxiv.org/content/10.1101/179358v1)
+# let's do a proper unbiased backtransform (https://www.biorxiv.org/content/biorxiv/suppl/2017/08/21/179358.DC1/179358-1.pdf)
+#### 1) Data following a normal distribution
+# sigma.sq <- summary(lm.0)$sigma^2
+# exp(fitted(lm.0) + sigma.sq / 2)
+sciff2017 <- exp(1.2510277 + summary(linearmodel_oth_nointerc)$sigma^2/2)
+scifm2017 <- exp(1.9666501 + summary(linearmodel_oth_nointerc)$sigma^2/2)
+sciff2017 - scifm2017
+sciff2018 <- exp(1.0787635 + summary(linearmodel_oth_nointerc)$sigma^2/2)
+scifm2018 <- exp(2.9624915 + summary(linearmodel_oth_nointerc)$sigma^2/2)
+sciff2018 - scifm2018
+
+# Instead of backtransforming
+# If I just want to know the difference between scores for male and female
+# For the specific case of Science
+# I can just rerun my model on untransformed data
+linearmodel_untransf <- lm(score ~ puby.gend.jour + propfemales + numauthors + pubmonth, data=lineardata_oth)
+summary(linearmodel_untransf)
+
+# Calculate dif manually
+# Sci 2018 ff - 49.73238
+# Sci 2018 fm - 138.70413
+# Intercept   - -1.29051
+49.73238 - 138.70413
+# -88.97175
+# 2017
+34.38098 - 56.52243
+
+# Calculate dif through multcomp
+linearmatrix_untrans <- afn.createlinearmatrix(linearmodel_untransf,c("Cell","Nature","NEJM","PLoS ONE","PNAS","Science"))
+linearposthoc_untransf <- glht(linearmodel_untransf, linfct = linearmatrix_untrans)
+linearposthoc_untransf
+# fffmScience2017 == 0  -22.1414
+# fffmScience2018 == 0  -88.9717
+
+# For quantile model, we aren't making distributional assumptions, so we can use the naive backtransform
+quantilemodel_oth_nointerc$coefficients
+# Sci 2018 ff 4.353965e-01
+# Sci 2018 fm 3.074395e+00
+exp(4.353965e-01) - exp(3.074395e+00)
+
+
+#####################
