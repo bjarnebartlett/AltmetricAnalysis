@@ -56,25 +56,25 @@ This analysis genderizes authors for those 200,000 articles, then models Altmetr
 
 
 
-###AltmetricData
+### AltmetricData
 
-This is folder contains the raw data as extracted in the script [AltmetricExtractor_092719BB.py](./Scripts/AltmetricExtractor_092719BB.py). There is one tsv file for each journal. We cannot share this data; please contact Altmetric.com.
+This is folder contains the raw data as extracted in the script [AltmetricExtractor_092719BB.py](./Scripts/AltmetricExtractor_092719BB.py). There is one tsv file for each journal. We cannot share the raw data; please contact Altmetric.com.
 
 
 
 ### GenderizedData
 
-This folder contains the Altmetric data as processed in the script [GenderizeAuthors_020420JF.R](./Scripts/GenderizeAuthors_020420JF.R). It contains the original data, plus additional variables describing the authors' genders. There is one tsv file for each journal. We cannot share this data; please contact Altmetric.com.
+This folder contains the Altmetric data as processed in the script [GenderizeAuthors_020420JF.R](./Scripts/GenderizeAuthors_020420JF.R). It contains the original data, plus additional variables describing the authors' genders. There is one tsv file for each journal.
 
 
 
-###Models
+### Models
 
 This folder contains the R objects containing the models as run in [AltmetricScoreModeling_040720JF.R](./Scripts/AltmetricScoreModeling_040720JF.R). There is one RDS file for the logistic model of bioRxiv, one for the logistic model of all journals except bioRxiv, one for the linear model of bioRxiv and one for the linear model of all journal except bioRxiv.
 
 
 
-###Figures
+### Figures
 
 This folder contains the figures generated in [AltmetricScoreModeling_040720JF.R](./Scripts/AltmetricScoreModeling_040720JF.R). 
 
